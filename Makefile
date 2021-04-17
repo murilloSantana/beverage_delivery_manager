@@ -24,3 +24,11 @@ generate:
 
 run-docker:
 	docker-compose up --build
+
+gqlgen: delete-generated-resolver
+	@go run github.com/99designs/gqlgen --verbose
+	@echo "============= Resolve changes ============="
+	@git diff graph/generated/resolver.go
+
+delete-generated-resolver:
+	@rm -rf ./graph/generated/resolver.go

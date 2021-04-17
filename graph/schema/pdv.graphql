@@ -1,0 +1,7 @@
+type PDV {
+    tradingName: String!
+}
+
+extend type Query {
+    pdvs: [PDV!]!
+}

@@ -1,0 +1,20 @@
+schema:
+  - graph/schema/*.graphql
+
+exec:
+  filename: graph/generated/generated.go
+  package: generated
+
+omit_slice_element_pointers: true
+
+model:
+  filename: graph/model/models_gen.go
+  package: model
+
+autobind:
+  - "beverage_delivery_manager/graph/model"
+
+resolver:
+  filename: graph/generated/resolver.go
+  package: generated
+  type: Resolver
