@@ -3,6 +3,7 @@ package server
 import (
 	logger "beverage_delivery_manager/config/log"
 	"beverage_delivery_manager/config/settings"
+	"beverage_delivery_manager/pdv/repository/mockdb"
 	"beverage_delivery_manager/pdv/usecase"
 
 	"beverage_delivery_manager/handler/graph/generated"
@@ -32,6 +33,6 @@ func New(sts settings.Settings) error {
 
 func newResolver() *resolver.Resolver {
 	return &resolver.Resolver{
-		PdvUseCase: usecase.NewPdvUseCase(),
+		PdvUseCase: usecase.NewPdvUseCase(mockdb.NewPdvRepository()),
 	}
 }
