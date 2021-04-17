@@ -19,5 +19,5 @@ type PdvInput struct {
 	OwnerName    string              `json:"ownerName"`
 	Document     string              `json:"document"`
 	CoverageArea domain.MultiPolygon `json:"coverageArea"`
-	Address      *domain.Point       `json:"address"`
+	Address      domain.Point        `json:"address"`
 }

@@ -15,7 +15,7 @@ input PdvInput {
     ownerName: String!
     document: String!
     coverageArea: MultiPolygon!
-    address: Point
+    address: Point!
 }
 
 input PdvIdInput {

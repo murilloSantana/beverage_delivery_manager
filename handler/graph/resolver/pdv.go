@@ -7,7 +7,17 @@ import (
 )
 
 func (r *mutationResolver) SavePdv(ctx context.Context, input *model.PdvInput) (*domain.Pdv, error) {
-	panic("not implemented")
+	pdv := domain.Pdv{
+		TradingName: input.TradingName,
+	}
+
+	newPdv, err := r.PdvUseCase.Save(pdv)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &newPdv, nil
 }
 
 func (r *queryResolver) FindPdvByID(ctx context.Context, input *model.PdvIDInput) (*domain.Pdv, error) {

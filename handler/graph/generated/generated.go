@@ -86,12 +86,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Mutation.savePDV":
+	case "Mutation.savePdv":
 		if e.complexity.Mutation.SavePdv == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_savePDV_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_savePdv_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -245,7 +245,7 @@ input PdvInput {
     ownerName: String!
     document: String!
     coverageArea: MultiPolygon!
-    address: Point
+    address: Point!
 }
 
 input PdvIdInput {
@@ -262,7 +262,7 @@ extend type Query {
 }
 
 extend type Mutation {
-    savePDV(input: PdvInput): Pdv
+    savePdv(input: PdvInput): Pdv
 }`, BuiltIn: false},
 	{Name: "handler/graph/schema/schema.graphql", Input: `schema {
     query: Query
@@ -288,7 +288,7 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_savePDV_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_savePdv_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *model.PdvInput
@@ -386,7 +386,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Mutation_savePDV(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_savePdv(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -403,7 +403,7 @@ func (ec *executionContext) _Mutation_savePDV(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_savePDV_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_savePdv_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1956,7 +1956,7 @@ func (ec *executionContext) unmarshalInputPdvInput(ctx context.Context, obj inte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-			it.Address, err = ec.unmarshalOPoint2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx, v)
+			it.Address, err = ec.unmarshalNPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1989,8 +1989,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "savePDV":
-			out.Values[i] = ec._Mutation_savePDV(ctx, field)
+		case "savePdv":
+			out.Values[i] = ec._Mutation_savePdv(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2724,22 +2724,6 @@ func (ec *executionContext) unmarshalOPoint2beverage_delivery_managerᚋpdvᚋdo
 }
 
 func (ec *executionContext) marshalOPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, sel ast.SelectionSet, v domain.Point) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) unmarshalOPoint2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, v interface{}) (*domain.Point, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(domain.Point)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOPoint2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, sel ast.SelectionSet, v *domain.Point) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
 	return v
 }
 
