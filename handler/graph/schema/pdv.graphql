@@ -1,10 +1,36 @@
 scalar MultiPolygon
+scalar Point
 
-type PDV @goModel(model: "beverage_delivery_manager/pdv/domain.PDV"){
+type Pdv @goModel(model: "beverage_delivery_manager/pdv/domain.Pdv"){
+    id: ID!
     tradingName: String!
+    ownerName: String!
+    document: String!
     coverageArea: MultiPolygon!
+    address: Point
+}
+
+input PdvInput {
+    tradingName: String!
+    ownerName: String!
+    document: String!
+    coverageArea: MultiPolygon!
+    address: Point
+}
+
+input PdvIdInput {
+    id: String!
+}
+
+input PdvAddressInput {
+    address: Point!
 }
 
 extend type Query {
-    pdvs(coverageArea: MultiPolygon): [PDV!]!
+    findPdvById(input: PdvIdInput): Pdv!
+    findPdvByAddress(input: PdvAddressInput): Pdv!
+}
+
+extend type Mutation {
+    savePdv(input: PdvInput): Pdv
 }

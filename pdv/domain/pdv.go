@@ -8,9 +8,9 @@ import (
 
 //TODO configure marshal/unmarshal different from buit-in (it is already known that there are more performant alternatives)
 
-type PDV struct {
+type Pdv struct {
 	ID           string       `json:"id" bson:"_id"`
-	TrandingName string       `json:"tradingName" bson:"tradingName"`
+	TradingName  string       `json:"tradingName" bson:"tradingName"`
 	OwnerName    string       `json:"ownerName" bson:"ownerName"`
 	Document     string       `json:"document" bson:"document"`
 	CoverageArea MultiPolygon `json:"coverageArea" bson:"coverageArea"`

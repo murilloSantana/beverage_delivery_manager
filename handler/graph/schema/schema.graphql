@@ -1,6 +1,6 @@
 schema {
     query: Query
-#    mutation: Mutation
+    mutation: Mutation
 }
 
 directive @goModel(model: String, models: [String!]) on OBJECT
@@ -14,4 +14,4 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
     | FIELD_DEFINITION
 
 type Query
-#type Mutation
+type Mutation

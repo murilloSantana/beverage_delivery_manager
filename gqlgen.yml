@@ -7,12 +7,12 @@ exec:
 
 omit_slice_element_pointers: true
 
-#model:
-#  filename: handler/graph/model/models_gen.go
-#  package: model
-#
-#autobind:
-#  - "beverage_delivery_manager/handler/graph/model"
+model:
+  filename: handler/graph/model/models_gen.go
+  package: model
+
+autobind:
+  - "beverage_delivery_manager/handler/graph/model"
 
 resolver:
   filename: handler/graph/generated/resolver.go

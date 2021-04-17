@@ -28,7 +28,7 @@ run-docker:
 gqlgen: delete-generated-resolver
 	@go run github.com/99designs/gqlgen --verbose
 	@echo "============= Resolve changes ============="
-	@git diff graph/generated/resolver.go
+	@git diff handler/graph/generated/resolver.go
 
 delete-generated-resolver:
-	@rm -rf ./graph/generated/resolver.go
+	@rm -rf ./handler/graph/generated/resolver.go

@@ -5,6 +5,7 @@ import (
 	"beverage_delivery_manager/config/settings"
 
 	"beverage_delivery_manager/handler/graph/generated"
+	"beverage_delivery_manager/handler/graph/resolver"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -18,7 +19,7 @@ type Server interface {
 func New(sts settings.Settings) error {
 	log := logger.NewLogger()
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &generated.Resolver{}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

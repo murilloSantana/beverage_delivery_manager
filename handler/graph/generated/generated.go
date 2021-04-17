@@ -3,6 +3,7 @@
 package generated
 
 import (
+	"beverage_delivery_manager/handler/graph/model"
 	"beverage_delivery_manager/pdv/domain"
 	"bytes"
 	"context"
@@ -35,7 +36,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	PDV() PDVResolver
+	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -43,21 +44,31 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Mutation struct {
+		SavePdv func(childComplexity int, input *model.PdvInput) int
+	}
+
 	Pdv struct {
+		Address      func(childComplexity int) int
 		CoverageArea func(childComplexity int) int
+		Document     func(childComplexity int) int
+		ID           func(childComplexity int) int
+		OwnerName    func(childComplexity int) int
 		TradingName  func(childComplexity int) int
 	}
 
 	Query struct {
-		Pdvs func(childComplexity int, coverageArea *domain.MultiPolygon) int
+		FindPdvByAddress func(childComplexity int, input *model.PdvAddressInput) int
+		FindPdvByID      func(childComplexity int, input *model.PdvIDInput) int
 	}
 }
 
-type PDVResolver interface {
-	TradingName(ctx context.Context, obj *domain.PDV) (string, error)
+type MutationResolver interface {
+	SavePdv(ctx context.Context, input *model.PdvInput) (*domain.Pdv, error)
 }
 type QueryResolver interface {
-	Pdvs(ctx context.Context, coverageArea *domain.MultiPolygon) ([]domain.PDV, error)
+	FindPdvByID(ctx context.Context, input *model.PdvIDInput) (*domain.Pdv, error)
+	FindPdvByAddress(ctx context.Context, input *model.PdvAddressInput) (*domain.Pdv, error)
 }
 
 type executableSchema struct {
@@ -75,31 +86,83 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "PDV.coverageArea":
+	case "Mutation.savePDV":
+		if e.complexity.Mutation.SavePdv == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_savePDV_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SavePdv(childComplexity, args["input"].(*model.PdvInput)), true
+
+	case "Pdv.address":
+		if e.complexity.Pdv.Address == nil {
+			break
+		}
+
+		return e.complexity.Pdv.Address(childComplexity), true
+
+	case "Pdv.coverageArea":
 		if e.complexity.Pdv.CoverageArea == nil {
 			break
 		}
 
 		return e.complexity.Pdv.CoverageArea(childComplexity), true
 
-	case "PDV.tradingName":
+	case "Pdv.document":
+		if e.complexity.Pdv.Document == nil {
+			break
+		}
+
+		return e.complexity.Pdv.Document(childComplexity), true
+
+	case "Pdv.id":
+		if e.complexity.Pdv.ID == nil {
+			break
+		}
+
+		return e.complexity.Pdv.ID(childComplexity), true
+
+	case "Pdv.ownerName":
+		if e.complexity.Pdv.OwnerName == nil {
+			break
+		}
+
+		return e.complexity.Pdv.OwnerName(childComplexity), true
+
+	case "Pdv.tradingName":
 		if e.complexity.Pdv.TradingName == nil {
 			break
 		}
 
 		return e.complexity.Pdv.TradingName(childComplexity), true
 
-	case "Query.pdvs":
-		if e.complexity.Query.Pdvs == nil {
+	case "Query.findPdvByAddress":
+		if e.complexity.Query.FindPdvByAddress == nil {
 			break
 		}
 
-		args, err := ec.field_Query_pdvs_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_findPdvByAddress_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Pdvs(childComplexity, args["coverageArea"].(*domain.MultiPolygon)), true
+		return e.complexity.Query.FindPdvByAddress(childComplexity, args["input"].(*model.PdvAddressInput)), true
+
+	case "Query.findPdvById":
+		if e.complexity.Query.FindPdvByID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_findPdvById_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.FindPdvByID(childComplexity, args["input"].(*model.PdvIDInput)), true
 
 	}
 	return 0, false
@@ -118,6 +181,20 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 			first = false
 			data := ec._Query(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -152,18 +229,44 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "handler/graph/schema/pdv.graphql", Input: `scalar MultiPolygon
+scalar Point
 
-type PDV @goModel(model: "beverage_delivery_manager/pdv/domain.PDV"){
+type Pdv @goModel(model: "beverage_delivery_manager/pdv/domain.Pdv"){
+    id: ID!
     tradingName: String!
+    ownerName: String!
+    document: String!
     coverageArea: MultiPolygon!
+    address: Point
+}
+
+input PdvInput {
+    tradingName: String!
+    ownerName: String!
+    document: String!
+    coverageArea: MultiPolygon!
+    address: Point
+}
+
+input PdvIdInput {
+    id: String!
+}
+
+input PdvAddressInput {
+    address: Point!
 }
 
 extend type Query {
-    pdvs(coverageArea: MultiPolygon): [PDV!]!
+    findPdvById(input: PdvIdInput): Pdv!
+    findPdvByAddress(input: PdvAddressInput): Pdv!
+}
+
+extend type Mutation {
+    savePDV(input: PdvInput): Pdv
 }`, BuiltIn: false},
 	{Name: "handler/graph/schema/schema.graphql", Input: `schema {
     query: Query
-#    mutation: Mutation
+    mutation: Mutation
 }
 
 directive @goModel(model: String, models: [String!]) on OBJECT
@@ -177,13 +280,28 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
     | FIELD_DEFINITION
 
 type Query
-#type Mutation`, BuiltIn: false},
+type Mutation`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_savePDV_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.PdvInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOPdvInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -200,18 +318,33 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_pdvs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_findPdvByAddress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *domain.MultiPolygon
-	if tmp, ok := rawArgs["coverageArea"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coverageArea"))
-		arg0, err = ec.unmarshalOMultiPolygon2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx, tmp)
+	var arg0 *model.PdvAddressInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOPdvAddressInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvAddressInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["coverageArea"] = arg0
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_findPdvById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.PdvIDInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOPdvIdInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvIDInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -253,7 +386,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _PDV_tradingName(ctx context.Context, field graphql.CollectedField, obj *domain.PDV) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_savePDV(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -261,7 +394,7 @@ func (ec *executionContext) _PDV_tradingName(ctx context.Context, field graphql.
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "PDV",
+		Object:     "Mutation",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   true,
@@ -269,9 +402,83 @@ func (ec *executionContext) _PDV_tradingName(ctx context.Context, field graphql.
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_savePDV_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PDV().TradingName(rctx, obj)
+		return ec.resolvers.Mutation().SavePdv(rctx, args["input"].(*model.PdvInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*domain.Pdv)
+	fc.Result = res
+	return ec.marshalOPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Pdv_id(ctx context.Context, field graphql.CollectedField, obj *domain.Pdv) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Pdv",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Pdv_tradingName(ctx context.Context, field graphql.CollectedField, obj *domain.Pdv) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Pdv",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TradingName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -288,7 +495,7 @@ func (ec *executionContext) _PDV_tradingName(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _PDV_coverageArea(ctx context.Context, field graphql.CollectedField, obj *domain.PDV) (ret graphql.Marshaler) {
+func (ec *executionContext) _Pdv_ownerName(ctx context.Context, field graphql.CollectedField, obj *domain.Pdv) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -296,7 +503,77 @@ func (ec *executionContext) _PDV_coverageArea(ctx context.Context, field graphql
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "PDV",
+		Object:     "Pdv",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OwnerName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Pdv_document(ctx context.Context, field graphql.CollectedField, obj *domain.Pdv) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Pdv",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Document, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Pdv_coverageArea(ctx context.Context, field graphql.CollectedField, obj *domain.Pdv) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Pdv",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -323,7 +600,39 @@ func (ec *executionContext) _PDV_coverageArea(ctx context.Context, field graphql
 	return ec.marshalNMultiPolygon2beverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_pdvs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Pdv_address(ctx context.Context, field graphql.CollectedField, obj *domain.Pdv) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Pdv",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Address, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(domain.Point)
+	fc.Result = res
+	return ec.marshalOPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_findPdvById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -340,7 +649,7 @@ func (ec *executionContext) _Query_pdvs(ctx context.Context, field graphql.Colle
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_pdvs_args(ctx, rawArgs)
+	args, err := ec.field_Query_findPdvById_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -348,7 +657,7 @@ func (ec *executionContext) _Query_pdvs(ctx context.Context, field graphql.Colle
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Pdvs(rctx, args["coverageArea"].(*domain.MultiPolygon))
+		return ec.resolvers.Query().FindPdvByID(rctx, args["input"].(*model.PdvIDInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -360,9 +669,51 @@ func (ec *executionContext) _Query_pdvs(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]domain.PDV)
+	res := resTmp.(*domain.Pdv)
 	fc.Result = res
-	return ec.marshalNPDV2ᚕbeverage_delivery_managerᚋpdvᚋdomainᚐPDVᚄ(ctx, field.Selections, res)
+	return ec.marshalNPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_findPdvByAddress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_findPdvByAddress_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FindPdvByAddress(rctx, args["input"].(*model.PdvAddressInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*domain.Pdv)
+	fc.Result = res
+	return ec.marshalNPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1523,6 +1874,98 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputPdvAddressInput(ctx context.Context, obj interface{}) (model.PdvAddressInput, error) {
+	var it model.PdvAddressInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalNPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPdvIdInput(ctx context.Context, obj interface{}) (model.PdvIDInput, error) {
+	var it model.PdvIDInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPdvInput(ctx context.Context, obj interface{}) (model.PdvInput, error) {
+	var it model.PdvInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "tradingName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tradingName"))
+			it.TradingName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ownerName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerName"))
+			it.OwnerName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "document":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("document"))
+			it.Document, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "coverageArea":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coverageArea"))
+			it.CoverageArea, err = ec.unmarshalNMultiPolygon2beverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalOPoint2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -1531,36 +1974,72 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** object.gotpl ****************************
 
-var pDVImplementors = []string{"PDV"}
+var mutationImplementors = []string{"Mutation"}
 
-func (ec *executionContext) _PDV(ctx context.Context, sel ast.SelectionSet, obj *domain.PDV) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, pDVImplementors)
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
 
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PDV")
-		case "tradingName":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PDV_tradingName(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "coverageArea":
-			out.Values[i] = ec._PDV_coverageArea(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "savePDV":
+			out.Values[i] = ec._Mutation_savePDV(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var pdvImplementors = []string{"Pdv"}
+
+func (ec *executionContext) _Pdv(ctx context.Context, sel ast.SelectionSet, obj *domain.Pdv) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pdvImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Pdv")
+		case "id":
+			out.Values[i] = ec._Pdv_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
+		case "tradingName":
+			out.Values[i] = ec._Pdv_tradingName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "ownerName":
+			out.Values[i] = ec._Pdv_ownerName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "document":
+			out.Values[i] = ec._Pdv_document(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "coverageArea":
+			out.Values[i] = ec._Pdv_coverageArea(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "address":
+			out.Values[i] = ec._Pdv_address(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1587,7 +2066,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "pdvs":
+		case "findPdvById":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -1595,7 +2074,21 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_pdvs(ctx, field)
+				res = ec._Query_findPdvById(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "findPdvByAddress":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_findPdvByAddress(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -1876,6 +2369,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNMultiPolygon2beverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx context.Context, v interface{}) (domain.MultiPolygon, error) {
 	var res domain.MultiPolygon
 	err := res.UnmarshalGQL(v)
@@ -1886,45 +2394,28 @@ func (ec *executionContext) marshalNMultiPolygon2beverage_delivery_managerᚋpdv
 	return v
 }
 
-func (ec *executionContext) marshalNPDV2beverage_delivery_managerᚋpdvᚋdomainᚐPDV(ctx context.Context, sel ast.SelectionSet, v domain.PDV) graphql.Marshaler {
-	return ec._PDV(ctx, sel, &v)
+func (ec *executionContext) marshalNPdv2beverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx context.Context, sel ast.SelectionSet, v domain.Pdv) graphql.Marshaler {
+	return ec._Pdv(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPDV2ᚕbeverage_delivery_managerᚋpdvᚋdomainᚐPDVᚄ(ctx context.Context, sel ast.SelectionSet, v []domain.PDV) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
+func (ec *executionContext) marshalNPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx context.Context, sel ast.SelectionSet, v *domain.Pdv) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
 	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPDV2beverage_delivery_managerᚋpdvᚋdomainᚐPDV(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
+	return ec._Pdv(ctx, sel, v)
+}
 
-	}
-	wg.Wait()
-	return ret
+func (ec *executionContext) unmarshalNPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, v interface{}) (domain.Point, error) {
+	var res domain.Point
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, sel ast.SelectionSet, v domain.Point) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -2195,16 +2686,57 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOMultiPolygon2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx context.Context, v interface{}) (*domain.MultiPolygon, error) {
+func (ec *executionContext) marshalOPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx context.Context, sel ast.SelectionSet, v *domain.Pdv) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Pdv(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPdvAddressInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvAddressInput(ctx context.Context, v interface{}) (*model.PdvAddressInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(domain.MultiPolygon)
+	res, err := ec.unmarshalInputPdvAddressInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPdvIdInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvIDInput(ctx context.Context, v interface{}) (*model.PdvIDInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPdvIdInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPdvInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvInput(ctx context.Context, v interface{}) (*model.PdvInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPdvInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, v interface{}) (domain.Point, error) {
+	var res domain.Point
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOMultiPolygon2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx context.Context, sel ast.SelectionSet, v *domain.MultiPolygon) graphql.Marshaler {
+func (ec *executionContext) marshalOPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, sel ast.SelectionSet, v domain.Point) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOPoint2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, v interface{}) (*domain.Point, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(domain.Point)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPoint2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, sel ast.SelectionSet, v *domain.Point) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
