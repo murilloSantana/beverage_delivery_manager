@@ -1,7 +1,10 @@
-type PDV {
+scalar MultiPolygon
+
+type PDV @goModel(model: "beverage_delivery_manager/domain.PDV"){
     tradingName: String!
+    coverageArea: MultiPolygon!
 }
 
 extend type Query {
-    pdvs: [PDV!]!
+    pdvs(coverageArea: MultiPolygon): [PDV!]!
 }

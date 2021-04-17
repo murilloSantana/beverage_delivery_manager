@@ -1,6 +1,7 @@
 package main
 
 import (
+	"beverage_delivery_manager/graph/generated"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"log"
@@ -8,7 +9,7 @@ import (
 	"os"
 )
 
-const defaultPort = "8080"
+const defaultPort = "5000"
 
 func main() {
 	port := os.Getenv("PORT")
@@ -16,7 +17,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &generated.Resolver{}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
