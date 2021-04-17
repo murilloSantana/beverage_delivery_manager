@@ -1,5 +1,5 @@
 build:
-	go build -v -o bin/beverage_delivery_manager
+	go build -v -o bin/beverage_delivery_manager ./cmd/main.go
 
 test:
 	go test -v -race  --cover ./...
@@ -17,7 +17,7 @@ lint:
 	golangci-lint run
 
 run: format-files lint
-	go run -race main.go
+	go run -race ./cmd/main.go
 
 generate:
 	@go generate ./...
