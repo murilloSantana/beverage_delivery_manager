@@ -1,5 +1,5 @@
 build:
-	go build -v -o bin/beverage_delivery_service
+	go build -v -o bin/beverage_delivery_manager
 
 test:
 	go test -v -race  --cover ./...

@@ -1,6 +1,6 @@
 version: '2.4'
 services:
-  beverage_delivery_service:
+  beverage_delivery_manager:
     build: .
     mem_limit: 300m
     restart: always
