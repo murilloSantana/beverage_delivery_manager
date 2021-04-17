@@ -1,6 +1,6 @@
 scalar MultiPolygon
 
-type PDV @goModel(model: "beverage_delivery_manager/domain.PDV"){
+type PDV @goModel(model: "beverage_delivery_manager/pdv/domain.PDV"){
     tradingName: String!
     coverageArea: MultiPolygon!
 }

@@ -3,7 +3,7 @@
 package generated
 
 import (
-	"beverage_delivery_manager/domain"
+	"beverage_delivery_manager/pdv/domain"
 	"bytes"
 	"context"
 	"errors"
@@ -151,9 +151,9 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema/pdv.graphql", Input: `scalar MultiPolygon
+	{Name: "handler/graph/schema/pdv.graphql", Input: `scalar MultiPolygon
 
-type PDV @goModel(model: "beverage_delivery_manager/domain.PDV"){
+type PDV @goModel(model: "beverage_delivery_manager/pdv/domain.PDV"){
     tradingName: String!
     coverageArea: MultiPolygon!
 }
@@ -161,7 +161,7 @@ type PDV @goModel(model: "beverage_delivery_manager/domain.PDV"){
 extend type Query {
     pdvs(coverageArea: MultiPolygon): [PDV!]!
 }`, BuiltIn: false},
-	{Name: "graph/schema/schema.graphql", Input: `schema {
+	{Name: "handler/graph/schema/schema.graphql", Input: `schema {
     query: Query
 #    mutation: Mutation
 }
@@ -206,7 +206,7 @@ func (ec *executionContext) field_Query_pdvs_args(ctx context.Context, rawArgs m
 	var arg0 *domain.MultiPolygon
 	if tmp, ok := rawArgs["coverageArea"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coverageArea"))
-		arg0, err = ec.unmarshalOMultiPolygon2ᚖbeverage_delivery_managerᚋdomainᚐMultiPolygon(ctx, tmp)
+		arg0, err = ec.unmarshalOMultiPolygon2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -320,7 +320,7 @@ func (ec *executionContext) _PDV_coverageArea(ctx context.Context, field graphql
 	}
 	res := resTmp.(domain.MultiPolygon)
 	fc.Result = res
-	return ec.marshalNMultiPolygon2beverage_delivery_managerᚋdomainᚐMultiPolygon(ctx, field.Selections, res)
+	return ec.marshalNMultiPolygon2beverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_pdvs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -362,7 +362,7 @@ func (ec *executionContext) _Query_pdvs(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.([]domain.PDV)
 	fc.Result = res
-	return ec.marshalNPDV2ᚕbeverage_delivery_managerᚋdomainᚐPDVᚄ(ctx, field.Selections, res)
+	return ec.marshalNPDV2ᚕbeverage_delivery_managerᚋpdvᚋdomainᚐPDVᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1876,21 +1876,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNMultiPolygon2beverage_delivery_managerᚋdomainᚐMultiPolygon(ctx context.Context, v interface{}) (domain.MultiPolygon, error) {
+func (ec *executionContext) unmarshalNMultiPolygon2beverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx context.Context, v interface{}) (domain.MultiPolygon, error) {
 	var res domain.MultiPolygon
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMultiPolygon2beverage_delivery_managerᚋdomainᚐMultiPolygon(ctx context.Context, sel ast.SelectionSet, v domain.MultiPolygon) graphql.Marshaler {
+func (ec *executionContext) marshalNMultiPolygon2beverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx context.Context, sel ast.SelectionSet, v domain.MultiPolygon) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNPDV2beverage_delivery_managerᚋdomainᚐPDV(ctx context.Context, sel ast.SelectionSet, v domain.PDV) graphql.Marshaler {
+func (ec *executionContext) marshalNPDV2beverage_delivery_managerᚋpdvᚋdomainᚐPDV(ctx context.Context, sel ast.SelectionSet, v domain.PDV) graphql.Marshaler {
 	return ec._PDV(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPDV2ᚕbeverage_delivery_managerᚋdomainᚐPDVᚄ(ctx context.Context, sel ast.SelectionSet, v []domain.PDV) graphql.Marshaler {
+func (ec *executionContext) marshalNPDV2ᚕbeverage_delivery_managerᚋpdvᚋdomainᚐPDVᚄ(ctx context.Context, sel ast.SelectionSet, v []domain.PDV) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -1914,7 +1914,7 @@ func (ec *executionContext) marshalNPDV2ᚕbeverage_delivery_managerᚋdomainᚐ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPDV2beverage_delivery_managerᚋdomainᚐPDV(ctx, sel, v[i])
+			ret[i] = ec.marshalNPDV2beverage_delivery_managerᚋpdvᚋdomainᚐPDV(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2195,7 +2195,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOMultiPolygon2ᚖbeverage_delivery_managerᚋdomainᚐMultiPolygon(ctx context.Context, v interface{}) (*domain.MultiPolygon, error) {
+func (ec *executionContext) unmarshalOMultiPolygon2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx context.Context, v interface{}) (*domain.MultiPolygon, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -2204,7 +2204,7 @@ func (ec *executionContext) unmarshalOMultiPolygon2ᚖbeverage_delivery_manager�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOMultiPolygon2ᚖbeverage_delivery_managerᚋdomainᚐMultiPolygon(ctx context.Context, sel ast.SelectionSet, v *domain.MultiPolygon) graphql.Marshaler {
+func (ec *executionContext) marshalOMultiPolygon2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐMultiPolygon(ctx context.Context, sel ast.SelectionSet, v *domain.MultiPolygon) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

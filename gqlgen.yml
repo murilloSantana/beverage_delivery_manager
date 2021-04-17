@@ -1,26 +1,26 @@
 schema:
-  - graph/schema/*.graphql
+  - handler/graph/schema/*.graphql
 
 exec:
-  filename: graph/generated/generated.go
+  filename: handler/graph/generated/generated.go
   package: generated
 
 omit_slice_element_pointers: true
 
 #model:
-#  filename: graph/model/models_gen.go
+#  filename: handler/graph/model/models_gen.go
 #  package: model
-
+#
 #autobind:
-#  - "beverage_delivery_manager/graph/model"
+#  - "beverage_delivery_manager/handler/graph/model"
 
 resolver:
-  filename: graph/generated/resolver.go
+  filename: handler/graph/generated/resolver.go
   package: generated
   type: Resolver
 
 models:
   Point:
-    model: beverage_delivery_manager/domain.Point
+    model: beverage_delivery_manager/pdv/domain.Point
   MultiPolygon:
-    model: beverage_delivery_manager/domain.MultiPolygon
+    model: beverage_delivery_manager/pdv/domain.MultiPolygon

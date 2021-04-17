@@ -3,7 +3,7 @@ package generated
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 import (
-	"beverage_delivery_manager/domain"
+	"beverage_delivery_manager/pdv/domain"
 	"context"
 )
 

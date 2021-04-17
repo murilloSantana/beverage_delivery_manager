@@ -1,9 +1,10 @@
 package server
 
 import (
-	logger "beverage_delivery_manager/cmd/log"
-	"beverage_delivery_manager/cmd/settings"
-	"beverage_delivery_manager/graph/generated"
+	logger "beverage_delivery_manager/config/log"
+	"beverage_delivery_manager/config/settings"
+
+	"beverage_delivery_manager/handler/graph/generated"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
