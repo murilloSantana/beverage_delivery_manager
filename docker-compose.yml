@@ -1,0 +1,8 @@
+version: '2.4'
+services:
+  beverage_delivery_service:
+    build: .
+    mem_limit: 300m
+    restart: always
+    ports:
+      - 5000:5000
