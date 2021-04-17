@@ -20,5 +20,7 @@ resolver:
   type: Resolver
 
 models:
+  Point:
+    model: beverage_delivery_manager/domain.Point
   MultiPolygon:
     model: beverage_delivery_manager/domain.MultiPolygon
