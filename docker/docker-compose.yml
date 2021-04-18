@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  beverage_delivery_manager:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+    - ../.:/usr/app/
+  mongo:
+    image: mongo:4.0.12
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: beverageDeliveryManagerDB
+    volumes:
+      - ./mongo:/imports
+      - ./mongo:/docker-entrypoint-initdb.d/
+  mongo-express:
+    image: mongo-express:0.54.0
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo
