@@ -1,4 +1,4 @@
-package mockdb
+package fakedb
 
 import (
 	"beverage_delivery_manager/pdv/domain"
@@ -13,4 +13,8 @@ func NewPdvRepository() repository.PdvRepository {
 
 func (p pdvRepository) Save(pdv domain.Pdv) (domain.Pdv, error) {
 	return domain.Pdv{}, nil
+}
+
+func (p pdvRepository) HasDocument(document string) (bool, error) {
+	return false, nil
 }
