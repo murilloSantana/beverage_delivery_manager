@@ -6,13 +6,16 @@ import (
 	"context"
 )
 
-func (r *mutationResolver) SavePdv(ctx context.Context, input *model.PdvInput) (*domain.Pdv, error) {
+func (r *mutationResolver) SavePdv(_ context.Context, input model.PdvInput) (*domain.Pdv, error) {
 	pdv := domain.Pdv{
-		TradingName: input.TradingName,
+		TradingName:  input.TradingName,
+		OwnerName:    input.OwnerName,
+		Document:     input.Document,
+		CoverageArea: input.CoverageArea,
+		Address:      input.Address,
 	}
 
 	newPdv, err := r.PdvUseCase.Save(pdv)
-
 	if err != nil {
 		return nil, err
 	}
@@ -20,10 +23,22 @@ func (r *mutationResolver) SavePdv(ctx context.Context, input *model.PdvInput) (
 	return &newPdv, nil
 }
 
-func (r *queryResolver) FindPdvByID(ctx context.Context, input *model.PdvIDInput) (*domain.Pdv, error) {
-	panic("not implemented")
+func (r *queryResolver) FindPdvByID(_ context.Context, input model.PdvIDInput) (*domain.Pdv, error) {
+	pdv, err := r.PdvUseCase.FindByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pdv, nil
 }
 
-func (r *queryResolver) FindPdvByAddress(ctx context.Context, input *model.PdvAddressInput) (*domain.Pdv, error) {
-	panic("not implemented")
+func (r *queryResolver) FindPdvByAddress(_ context.Context, input model.PdvAddressInput) (*domain.Pdv, error) {
+	coordinates := domain.PointCoordinates{input.Longitude, input.Latitude}
+
+	pdv, err := r.PdvUseCase.FindByAddress(coordinates)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pdv, nil
 }

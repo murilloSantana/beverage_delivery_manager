@@ -45,7 +45,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		SavePdv func(childComplexity int, input *model.PdvInput) int
+		SavePdv func(childComplexity int, input model.PdvInput) int
 	}
 
 	Pdv struct {
@@ -58,17 +58,17 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		FindPdvByAddress func(childComplexity int, input *model.PdvAddressInput) int
-		FindPdvByID      func(childComplexity int, input *model.PdvIDInput) int
+		FindPdvByAddress func(childComplexity int, input model.PdvAddressInput) int
+		FindPdvByID      func(childComplexity int, input model.PdvIDInput) int
 	}
 }
 
 type MutationResolver interface {
-	SavePdv(ctx context.Context, input *model.PdvInput) (*domain.Pdv, error)
+	SavePdv(ctx context.Context, input model.PdvInput) (*domain.Pdv, error)
 }
 type QueryResolver interface {
-	FindPdvByID(ctx context.Context, input *model.PdvIDInput) (*domain.Pdv, error)
-	FindPdvByAddress(ctx context.Context, input *model.PdvAddressInput) (*domain.Pdv, error)
+	FindPdvByID(ctx context.Context, input model.PdvIDInput) (*domain.Pdv, error)
+	FindPdvByAddress(ctx context.Context, input model.PdvAddressInput) (*domain.Pdv, error)
 }
 
 type executableSchema struct {
@@ -96,7 +96,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SavePdv(childComplexity, args["input"].(*model.PdvInput)), true
+		return e.complexity.Mutation.SavePdv(childComplexity, args["input"].(model.PdvInput)), true
 
 	case "Pdv.address":
 		if e.complexity.Pdv.Address == nil {
@@ -150,7 +150,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.FindPdvByAddress(childComplexity, args["input"].(*model.PdvAddressInput)), true
+		return e.complexity.Query.FindPdvByAddress(childComplexity, args["input"].(model.PdvAddressInput)), true
 
 	case "Query.findPdvById":
 		if e.complexity.Query.FindPdvByID == nil {
@@ -162,7 +162,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.FindPdvByID(childComplexity, args["input"].(*model.PdvIDInput)), true
+		return e.complexity.Query.FindPdvByID(childComplexity, args["input"].(model.PdvIDInput)), true
 
 	}
 	return 0, false
@@ -258,12 +258,12 @@ input PdvAddressInput {
 }
 
 extend type Query {
-    findPdvById(input: PdvIdInput): Pdv!
-    findPdvByAddress(input: PdvAddressInput): Pdv!
+    findPdvById(input: PdvIdInput!): Pdv!
+    findPdvByAddress(input: PdvAddressInput!): Pdv!
 }
 
 extend type Mutation {
-    savePdv(input: PdvInput): Pdv
+    savePdv(input: PdvInput!): Pdv
 }`, BuiltIn: false},
 	{Name: "handler/graph/schema/schema.graphql", Input: `schema {
     query: Query
@@ -292,10 +292,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_savePdv_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.PdvInput
+	var arg0 model.PdvInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOPdvInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvInput(ctx, tmp)
+		arg0, err = ec.unmarshalNPdvInput2beverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -322,10 +322,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_findPdvByAddress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.PdvAddressInput
+	var arg0 model.PdvAddressInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOPdvAddressInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvAddressInput(ctx, tmp)
+		arg0, err = ec.unmarshalNPdvAddressInput2beverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvAddressInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -337,10 +337,10 @@ func (ec *executionContext) field_Query_findPdvByAddress_args(ctx context.Contex
 func (ec *executionContext) field_Query_findPdvById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.PdvIDInput
+	var arg0 model.PdvIDInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOPdvIdInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvIDInput(ctx, tmp)
+		arg0, err = ec.unmarshalNPdvIdInput2beverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvIDInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -412,7 +412,7 @@ func (ec *executionContext) _Mutation_savePdv(ctx context.Context, field graphql
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SavePdv(rctx, args["input"].(*model.PdvInput))
+		return ec.resolvers.Mutation().SavePdv(rctx, args["input"].(model.PdvInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -658,7 +658,7 @@ func (ec *executionContext) _Query_findPdvById(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().FindPdvByID(rctx, args["input"].(*model.PdvIDInput))
+		return ec.resolvers.Query().FindPdvByID(rctx, args["input"].(model.PdvIDInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -700,7 +700,7 @@ func (ec *executionContext) _Query_findPdvByAddress(ctx context.Context, field g
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().FindPdvByAddress(rctx, args["input"].(*model.PdvAddressInput))
+		return ec.resolvers.Query().FindPdvByAddress(rctx, args["input"].(model.PdvAddressInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2432,6 +2432,21 @@ func (ec *executionContext) marshalNPdv2ᚖbeverage_delivery_managerᚋpdvᚋdom
 	return ec._Pdv(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNPdvAddressInput2beverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvAddressInput(ctx context.Context, v interface{}) (model.PdvAddressInput, error) {
+	res, err := ec.unmarshalInputPdvAddressInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNPdvIdInput2beverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvIDInput(ctx context.Context, v interface{}) (model.PdvIDInput, error) {
+	res, err := ec.unmarshalInputPdvIdInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNPdvInput2beverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvInput(ctx context.Context, v interface{}) (model.PdvInput, error) {
+	res, err := ec.unmarshalInputPdvInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, v interface{}) (domain.Point, error) {
 	var res domain.Point
 	err := res.UnmarshalGQL(v)
@@ -2715,30 +2730,6 @@ func (ec *executionContext) marshalOPdv2ᚖbeverage_delivery_managerᚋpdvᚋdom
 		return graphql.Null
 	}
 	return ec._Pdv(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOPdvAddressInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvAddressInput(ctx context.Context, v interface{}) (*model.PdvAddressInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputPdvAddressInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOPdvIdInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvIDInput(ctx context.Context, v interface{}) (*model.PdvIDInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputPdvIdInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOPdvInput2ᚖbeverage_delivery_managerᚋhandlerᚋgraphᚋmodelᚐPdvInput(ctx context.Context, v interface{}) (*model.PdvInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputPdvInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOPoint2beverage_delivery_managerᚋpdvᚋdomainᚐPoint(ctx context.Context, v interface{}) (domain.Point, error) {

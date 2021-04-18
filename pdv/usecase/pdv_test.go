@@ -29,7 +29,7 @@ func withID(ID string) DefaultPdvOption {
 }
 
 func newPdv(opts ...DefaultPdvOption) domain.Pdv {
-	pdv := domain.Pdv{
+	pdv := domain.Pdv {
 		TradingName: "Mercado Pinheiros",
 		OwnerName:   "Luiz Santo",
 		Document:    "06004905000116",
