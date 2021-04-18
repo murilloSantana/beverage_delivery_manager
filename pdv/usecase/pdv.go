@@ -10,6 +10,8 @@ import (
 
 type PdvUseCase interface {
 	Save(pdv domain.Pdv) (domain.Pdv, error)
+	FindByID(ID string) (domain.Pdv, error)
+	FindByAddress(coordinates domain.PointCoordinates) (domain.Pdv, error)
 }
 
 type pdvUseCase struct {
@@ -47,4 +49,22 @@ func (p pdvUseCase) hasDocument(document string) error {
 	}
 
 	return nil
+}
+
+func (p pdvUseCase) FindByID(ID string) (domain.Pdv, error) {
+	pdv, err := p.repository.FindByID(ID)
+	if err != nil {
+		return domain.Pdv{}, err
+	}
+
+	return pdv, nil
+}
+
+func (p pdvUseCase) FindByAddress(coordinates domain.PointCoordinates) (domain.Pdv, error) {
+	pdv, err := p.repository.FindByAddress(coordinates)
+	if err != nil {
+		return domain.Pdv{}, err
+	}
+
+	return pdv, nil
 }

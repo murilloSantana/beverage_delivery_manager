@@ -7,7 +7,8 @@ import (
 )
 
 type PdvAddressInput struct {
-	Address domain.Point `json:"address"`
+	Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
 }
 
 type PdvIDInput struct {

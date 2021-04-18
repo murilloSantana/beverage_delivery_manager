@@ -108,3 +108,89 @@ func TestSave(t *testing.T) {
 		assert.Equal(t, expected, actual)
 	})
 }
+
+func TestFindByID(t *testing.T) {
+	suite := pdvUseCaseTestSuite{}
+
+	t.Run("Should return error when find by id fail", func(t *testing.T) {
+		suite.setupTest()
+
+		ID := "2345678"
+		expectedErr := errors.New("find by id error")
+
+		suite.pdvRepository.On("FindByID", ID).Return(domain.Pdv{}, expectedErr)
+		actual, actualErr := suite.pdvUseCase.FindByID(ID)
+
+		assert.EqualError(t, actualErr, "find by id error")
+		assert.Empty(t, actual)
+	})
+
+	t.Run("Should return empty pdv when id not found", func(t *testing.T) {
+		suite.setupTest()
+
+		ID := "2345678"
+
+		suite.pdvRepository.On("FindByID", ID).Return(domain.Pdv{}, nil)
+		actual, actualErr := suite.pdvUseCase.FindByID(ID)
+
+		assert.NoError(t, actualErr)
+		assert.Empty(t, actual)
+	})
+
+	t.Run("Should return a valid pdv", func(t *testing.T) {
+		suite.setupTest()
+
+		ID := "2345678"
+		expected := newPdv(withID(ID))
+
+		suite.pdvRepository.On("FindByID", ID).Return(expected, nil)
+		actual, actualErr := suite.pdvUseCase.FindByID(ID)
+
+		assert.NoError(t, actualErr)
+		assert.Equal(t, expected, actual)
+	})
+}
+
+func TestFindByAddress(t *testing.T) {
+	suite := pdvUseCaseTestSuite{}
+
+	t.Run("Should return error when find by address fail", func(t *testing.T) {
+		suite.setupTest()
+
+		coordinates := domain.PointCoordinates{-46.57421, -21.785742}
+		expectedErr := errors.New("find by address error")
+
+		suite.pdvRepository.On("FindByAddress", coordinates).Return(domain.Pdv{}, expectedErr)
+		actual, actualErr := suite.pdvUseCase.FindByAddress(coordinates)
+
+		assert.EqualError(t, actualErr, "find by address error")
+		assert.Empty(t, actual)
+	})
+
+	t.Run("Should return empty PDV when the entered address is not in a coverage area", func(t *testing.T) {
+		suite.setupTest()
+
+		coordinates := domain.PointCoordinates{-46.57421, -21.785742}
+
+		suite.pdvRepository.On("FindByAddress", coordinates).Return(domain.Pdv{}, nil)
+		actual, actualErr := suite.pdvUseCase.FindByAddress(coordinates)
+
+		assert.NoError(t, actualErr)
+		assert.Empty(t, actual)
+	})
+
+	t.Run("Should return a valid pdv", func(t *testing.T) {
+		suite.setupTest()
+
+		ID := "2345678"
+		expected := newPdv(withID(ID))
+
+		coordinates := domain.PointCoordinates{-46.57421, -21.785742}
+
+		suite.pdvRepository.On("FindByAddress", coordinates).Return(expected, nil)
+		actual, actualErr := suite.pdvUseCase.FindByAddress(coordinates)
+
+		assert.NoError(t, actualErr)
+		assert.Equal(t, expected, actual)
+	})
+}

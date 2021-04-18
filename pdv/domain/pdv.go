@@ -1,12 +1,16 @@
 package domain
 
 import (
+	logger "beverage_delivery_manager/config/log"
 	"encoding/json"
 	"fmt"
 	"io"
 )
 
 //TODO configure marshal/unmarshal different from buit-in (it is already known that there are more performant alternatives)
+
+type MultiPolygonCoordinates [][][][2]float64
+type PointCoordinates []float64
 
 type Pdv struct {
 	ID           string       `json:"id" bson:"_id"`
@@ -17,14 +21,15 @@ type Pdv struct {
 	Address      Point        `json:"address" bson:"address"`
 }
 
+// Multipolygon implements something
 type MultiPolygon struct {
-	Type        string           `json:"type" bson:"type"`
-	Coordinates [][][][2]float64 `json:"coordinates" bson:"coordinates"`
+	Type        string                  `json:"type" bson:"type"`
+	Coordinates MultiPolygonCoordinates `json:"coordinates" bson:"coordinates"`
 }
 
 type Point struct {
-	Type        string    `json:"type" bson:"type"`
-	Coordinates []float64 `json:"coordinates" bson:"coordinates"`
+	Type        string           `json:"type" bson:"type"`
+	Coordinates PointCoordinates `json:"coordinates" bson:"coordinates"`
 }
 
 //TODO look for alternatives so as not to need to marshal the value received
@@ -47,15 +52,17 @@ func (m *MultiPolygon) UnmarshalGQL(v interface{}) error {
 }
 
 func (m MultiPolygon) MarshalGQL(w io.Writer) {
+	log := logger.NewLogger()
+
 	mp, err := json.Marshal(m)
 	if err != nil {
-		fmt.Println("multiPolygon marshalling fail")
+		log.Error(nil, "multiPolygon marshalling fail")
 		return
 	}
 
 	_, err = w.Write(mp)
 	if err != nil {
-		fmt.Println("multiPolygon writing fail")
+		log.Error(nil, "multiPolygon writing fail")
 		return
 	}
 }
@@ -79,15 +86,17 @@ func (p *Point) UnmarshalGQL(v interface{}) error {
 }
 
 func (p Point) MarshalGQL(w io.Writer) {
+	log := logger.NewLogger()
+
 	point, err := json.Marshal(p)
 	if err != nil {
-		fmt.Println("point marshalling fail")
+		log.Error(nil, "point marshalling fail")
 		return
 	}
 
 	_, err = w.Write(point)
 	if err != nil {
-		fmt.Println("point writing fail")
+		log.Error(nil, "point writing fail")
 		return
 	}
 }
