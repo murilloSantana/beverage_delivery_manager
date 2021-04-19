@@ -16,7 +16,7 @@ type pdvUseCaseTestSuite struct {
 	pdvUseCase    PdvUseCase
 	pdvRepository *mocks.PdvRepository
 	pdv           domain.Pdv
-	ctx context.Context
+	ctx           context.Context
 }
 
 func (suite *pdvUseCaseTestSuite) setupTest() {

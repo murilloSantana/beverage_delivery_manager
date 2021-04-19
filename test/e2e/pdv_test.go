@@ -62,12 +62,6 @@ func newResolver(sts settings.Settings, mongoCli *mongo.Client) *resolver.Resolv
 	}
 }
 
-func withID(ID string) DefaultPdvOption {
-	return func(pdv *domain.Pdv) {
-		pdv.ID = ID
-	}
-}
-
 func newPdv(opts ...DefaultPdvOption) domain.Pdv {
 	pdv := domain.Pdv{
 		TradingName: "Mercado Pinheiros",

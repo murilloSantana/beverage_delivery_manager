@@ -20,7 +20,7 @@ type pdvResolverTestSuite struct {
 	pdvInput        model.PdvInput
 	pdvIDInput      model.PdvIDInput
 	pdvAddressInput model.PdvAddressInput
-	ctx context.Context
+	ctx             context.Context
 }
 
 func (suite *pdvResolverTestSuite) setupTest() {
