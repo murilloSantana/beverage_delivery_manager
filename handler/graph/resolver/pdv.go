@@ -4,9 +4,13 @@ import (
 	"beverage_delivery_manager/handler/graph/model"
 	"beverage_delivery_manager/pdv/domain"
 	"context"
+	"time"
 )
 
-func (r *mutationResolver) SavePdv(_ context.Context, input model.PdvInput) (*domain.Pdv, error) {
+func (r *mutationResolver) SavePdv(ctx context.Context, input model.PdvInput) (*domain.Pdv, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	pdv := domain.Pdv{
 		TradingName:  input.TradingName,
 		OwnerName:    input.OwnerName,
@@ -15,7 +19,7 @@ func (r *mutationResolver) SavePdv(_ context.Context, input model.PdvInput) (*do
 		Address:      input.Address,
 	}
 
-	newPdv, err := r.PdvUseCase.Save(pdv)
+	newPdv, err := r.PdvUseCase.Save(ctx, pdv)
 	if err != nil {
 		return nil, err
 	}

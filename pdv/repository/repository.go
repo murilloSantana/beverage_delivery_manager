@@ -1,6 +1,9 @@
 package repository
 
-import "beverage_delivery_manager/pdv/domain"
+import (
+	"beverage_delivery_manager/pdv/domain"
+	"context"
+)
 
 //go:generate mockery --name PdvRepository --case=underscore
 
@@ -13,7 +16,8 @@ import "beverage_delivery_manager/pdv/domain"
 // dynamically generated in the application and not informed by the client
 type PdvRepository interface {
 	HasDocument(document string) (bool, error)
-	Save(pdv domain.Pdv) (domain.Pdv, error)
+	Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (domain.Pdv, error)
 	FindByID(ID string) (domain.Pdv, error)
 	FindByAddress(point domain.Point) (domain.Pdv, error)
+	GenerateNewID() func() string
 }

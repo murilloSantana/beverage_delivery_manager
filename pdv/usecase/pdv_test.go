@@ -3,8 +3,10 @@ package usecase
 import (
 	"beverage_delivery_manager/pdv/domain"
 	"beverage_delivery_manager/pdv/repository/mocks"
+	"context"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -14,9 +16,11 @@ type pdvUseCaseTestSuite struct {
 	pdvUseCase    PdvUseCase
 	pdvRepository *mocks.PdvRepository
 	pdv           domain.Pdv
+	ctx context.Context
 }
 
 func (suite *pdvUseCaseTestSuite) setupTest() {
+	suite.ctx = context.Background()
 	suite.pdvRepository = new(mocks.PdvRepository)
 	suite.pdvUseCase = NewPdvUseCase(suite.pdvRepository)
 	suite.pdv = newPdv()
@@ -65,13 +69,17 @@ func newPoint(coordinates ...float64) domain.Point {
 func TestSave(t *testing.T) {
 	suite := pdvUseCaseTestSuite{}
 
+	generateNewIDMock := func() string {
+		return ""
+	}
+
 	t.Run("Should return error when has document func fail", func(t *testing.T) {
 		suite.setupTest()
 
 		expectedErr := errors.New("has document error")
 
 		suite.pdvRepository.On("HasDocument", suite.pdv.Document).Return(false, expectedErr)
-		actual, actualErr := suite.pdvUseCase.Save(suite.pdv)
+		actual, actualErr := suite.pdvUseCase.Save(suite.ctx, suite.pdv)
 
 		assert.EqualError(t, actualErr, "has document error")
 		assert.Empty(t, actual)
@@ -81,7 +89,7 @@ func TestSave(t *testing.T) {
 		suite.setupTest()
 
 		suite.pdvRepository.On("HasDocument", suite.pdv.Document).Return(true, nil)
-		actual, actualErr := suite.pdvUseCase.Save(suite.pdv)
+		actual, actualErr := suite.pdvUseCase.Save(suite.ctx, suite.pdv)
 
 		assert.EqualError(t, actualErr, "document already exists")
 		assert.Empty(t, actual)
@@ -93,9 +101,10 @@ func TestSave(t *testing.T) {
 		expectedErr := errors.New("save error")
 
 		suite.pdvRepository.On("HasDocument", suite.pdv.Document).Return(false, nil)
-		suite.pdvRepository.On("Save", suite.pdv).Return(domain.Pdv{}, expectedErr)
+		suite.pdvRepository.On("GenerateNewID").Return(generateNewIDMock)
+		suite.pdvRepository.On("Save", suite.ctx, suite.pdv, mock.AnythingOfType("func() string")).Return(domain.Pdv{}, expectedErr)
 
-		actual, actualErr := suite.pdvUseCase.Save(suite.pdv)
+		actual, actualErr := suite.pdvUseCase.Save(suite.ctx, suite.pdv)
 
 		assert.EqualError(t, actualErr, "save error")
 		assert.Empty(t, actual)
@@ -107,9 +116,10 @@ func TestSave(t *testing.T) {
 		expected := newPdv(withID("234343435454"))
 
 		suite.pdvRepository.On("HasDocument", suite.pdv.Document).Return(false, nil)
-		suite.pdvRepository.On("Save", suite.pdv).Return(expected, nil)
+		suite.pdvRepository.On("GenerateNewID").Return(generateNewIDMock)
+		suite.pdvRepository.On("Save", suite.ctx, suite.pdv, mock.AnythingOfType("func() string")).Return(expected, nil)
 
-		actual, actualErr := suite.pdvUseCase.Save(suite.pdv)
+		actual, actualErr := suite.pdvUseCase.Save(suite.ctx, suite.pdv)
 
 		assert.NoError(t, actualErr)
 		assert.Equal(t, expected, actual)

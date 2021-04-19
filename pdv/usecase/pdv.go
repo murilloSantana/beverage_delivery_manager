@@ -3,13 +3,14 @@ package usecase
 import (
 	"beverage_delivery_manager/pdv/domain"
 	"beverage_delivery_manager/pdv/repository"
+	"context"
 	"fmt"
 )
 
 //go:generate mockery --name PdvUseCase --case=underscore
 
 type PdvUseCase interface {
-	Save(pdv domain.Pdv) (domain.Pdv, error)
+	Save(ctx context.Context, pdv domain.Pdv) (domain.Pdv, error)
 	FindByID(ID string) (domain.Pdv, error)
 	FindByAddress(point domain.Point) (domain.Pdv, error)
 }
@@ -24,13 +25,13 @@ func NewPdvUseCase(repository repository.PdvRepository) PdvUseCase {
 	}
 }
 
-func (p pdvUseCase) Save(pdv domain.Pdv) (domain.Pdv, error) {
+func (p pdvUseCase) Save(ctx context.Context, pdv domain.Pdv) (domain.Pdv, error) {
 	err := p.hasDocument(pdv.Document)
 	if err != nil {
 		return domain.Pdv{}, err
 	}
 
-	newPdv, err := p.repository.Save(pdv)
+	newPdv, err := p.repository.Save(ctx, pdv, p.repository.GenerateNewID())
 	if err != nil {
 		return domain.Pdv{}, err
 	}

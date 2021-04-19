@@ -11,21 +11,33 @@ import (
 	"time"
 )
 
-type pdvRepository struct {
-	collection *mongo.Collection
+//go:generate mockery --name Collection --case=underscore
+
+type Collection interface {
+	InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
+	CountDocuments(ctx context.Context, filter interface{}, opts ...*options.CountOptions) (int64, error)
+	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
+	Aggregate(ctx context.Context, pipeline interface{}, opts ...*options.AggregateOptions) (*mongo.Cursor, error)
 }
 
-func NewPdvRepository(collection *mongo.Collection) repository.PdvRepository {
+type pdvRepository struct {
+	collection Collection
+}
+
+func NewPdvRepository(collection Collection) repository.PdvRepository {
 	return pdvRepository{
 		collection: collection,
 	}
 }
 
-func (p pdvRepository) Save(pdv domain.Pdv) (domain.Pdv, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
+func (p pdvRepository) GenerateNewID() func() string {
+	return func() string {
+		return primitive.NewObjectID().Hex()
+	}
+}
 
-	pdv.ID = primitive.NewObjectID().Hex()
+func (p pdvRepository) Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (domain.Pdv, error) {
+	pdv.ID = generateNewID()
 	resp, err := p.collection.InsertOne(ctx, pdv)
 	if err != nil {
 		return domain.Pdv{}, err

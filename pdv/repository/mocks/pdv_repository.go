@@ -4,6 +4,7 @@ package mocks
 
 import (
 	domain "beverage_delivery_manager/pdv/domain"
+	context "context"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -55,6 +56,22 @@ func (_m *PdvRepository) FindByID(ID string) (domain.Pdv, error) {
 	return r0, r1
 }
 
+// GenerateNewID provides a mock function with given fields:
+func (_m *PdvRepository) GenerateNewID() func() string {
+	ret := _m.Called()
+
+	var r0 func() string
+	if rf, ok := ret.Get(0).(func() func() string); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(func() string)
+		}
+	}
+
+	return r0
+}
+
 // HasDocument provides a mock function with given fields: document
 func (_m *PdvRepository) HasDocument(document string) (bool, error) {
 	ret := _m.Called(document)
@@ -76,20 +93,20 @@ func (_m *PdvRepository) HasDocument(document string) (bool, error) {
 	return r0, r1
 }
 
-// Save provides a mock function with given fields: pdv
-func (_m *PdvRepository) Save(pdv domain.Pdv) (domain.Pdv, error) {
-	ret := _m.Called(pdv)
+// Save provides a mock function with given fields: ctx, pdv, generateNewID
+func (_m *PdvRepository) Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (domain.Pdv, error) {
+	ret := _m.Called(ctx, pdv, generateNewID)
 
 	var r0 domain.Pdv
-	if rf, ok := ret.Get(0).(func(domain.Pdv) domain.Pdv); ok {
-		r0 = rf(pdv)
+	if rf, ok := ret.Get(0).(func(context.Context, domain.Pdv, func() string) domain.Pdv); ok {
+		r0 = rf(ctx, pdv, generateNewID)
 	} else {
 		r0 = ret.Get(0).(domain.Pdv)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(domain.Pdv) error); ok {
-		r1 = rf(pdv)
+	if rf, ok := ret.Get(1).(func(context.Context, domain.Pdv, func() string) error); ok {
+		r1 = rf(ctx, pdv, generateNewID)
 	} else {
 		r1 = ret.Error(1)
 	}

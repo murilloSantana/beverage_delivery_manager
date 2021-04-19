@@ -1,8 +1,8 @@
 build:
 	go build -v -o bin/beverage_delivery_manager ./cmd/main.go
 
-test:
-	go test -v -race  --cover ./...
+run-test:
+	go test -v -race -count=1 --cover ./...
 
 bench:
 	go test -bench=. ./...

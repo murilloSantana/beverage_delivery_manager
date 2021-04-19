@@ -4,6 +4,7 @@ package mocks
 
 import (
 	domain "beverage_delivery_manager/pdv/domain"
+	context "context"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -55,20 +56,20 @@ func (_m *PdvUseCase) FindByID(ID string) (domain.Pdv, error) {
 	return r0, r1
 }
 
-// Save provides a mock function with given fields: pdv
-func (_m *PdvUseCase) Save(pdv domain.Pdv) (domain.Pdv, error) {
-	ret := _m.Called(pdv)
+// Save provides a mock function with given fields: ctx, pdv
+func (_m *PdvUseCase) Save(ctx context.Context, pdv domain.Pdv) (domain.Pdv, error) {
+	ret := _m.Called(ctx, pdv)
 
 	var r0 domain.Pdv
-	if rf, ok := ret.Get(0).(func(domain.Pdv) domain.Pdv); ok {
-		r0 = rf(pdv)
+	if rf, ok := ret.Get(0).(func(context.Context, domain.Pdv) domain.Pdv); ok {
+		r0 = rf(ctx, pdv)
 	} else {
 		r0 = ret.Get(0).(domain.Pdv)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(domain.Pdv) error); ok {
-		r1 = rf(pdv)
+	if rf, ok := ret.Get(1).(func(context.Context, domain.Pdv) error); ok {
+		r1 = rf(ctx, pdv)
 	} else {
 		r1 = ret.Error(1)
 	}

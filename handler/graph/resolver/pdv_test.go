@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -19,11 +20,12 @@ type pdvResolverTestSuite struct {
 	pdvInput        model.PdvInput
 	pdvIDInput      model.PdvIDInput
 	pdvAddressInput model.PdvAddressInput
+	ctx context.Context
 }
 
 func (suite *pdvResolverTestSuite) setupTest() {
 	suite.pdvUseCase = new(mocks.PdvUseCase)
-
+	suite.ctx = context.Background()
 	suite.resolver = &Resolver{
 		PdvUseCase: suite.pdvUseCase,
 	}
@@ -105,9 +107,9 @@ func TestSavePdv(t *testing.T) {
 
 		expectedErr := errors.New("save error")
 
-		suite.pdvUseCase.On("Save", suite.pdv).Return(domain.Pdv{}, expectedErr)
+		suite.pdvUseCase.On("Save", mock.Anything, suite.pdv).Return(domain.Pdv{}, expectedErr)
 
-		actual, actualErr := suite.resolver.Mutation().SavePdv(context.Background(), suite.pdvInput)
+		actual, actualErr := suite.resolver.Mutation().SavePdv(suite.ctx, suite.pdvInput)
 
 		assert.EqualError(t, actualErr, "save error")
 		assert.Empty(t, actual)
@@ -118,9 +120,9 @@ func TestSavePdv(t *testing.T) {
 
 		expected := newPdv(withID("234343435454"))
 
-		suite.pdvUseCase.On("Save", suite.pdv).Return(expected, nil)
+		suite.pdvUseCase.On("Save", mock.Anything, suite.pdv).Return(expected, nil)
 
-		actual, actualErr := suite.resolver.Mutation().SavePdv(context.Background(), suite.pdvInput)
+		actual, actualErr := suite.resolver.Mutation().SavePdv(suite.ctx, suite.pdvInput)
 
 		assert.NoError(t, actualErr)
 		assert.Equal(t, &expected, actual)
