@@ -51,7 +51,7 @@ func (p *pdvE2ETestSuite) tearDownTest() {
 func newResolver(sts settings.Settings, mongoCli *mongo.Client) *resolver.Resolver {
 	mongoSts := sts.MongoSettings
 	database := mongoCli.Database(mongoSts.DatabaseName)
-	pdvRepository := mongoRepository.NewPdvRepository(database.Collection(mongoSts.CollectionName))
+	pdvRepository := mongoRepository.NewPdvRepository(database.Collection(mongoSts.CollectionName), nil)
 
 	return &resolver.Resolver{
 		PdvUseCase: usecase.NewPdvUseCase(pdvRepository),

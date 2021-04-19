@@ -22,11 +22,13 @@ type Collection interface {
 
 type pdvRepository struct {
 	collection Collection
+	cache      repository.Cache
 }
 
-func NewPdvRepository(collection Collection) repository.PdvRepository {
+func NewPdvRepository(collection Collection, cache repository.Cache) repository.PdvRepository {
 	return pdvRepository{
 		collection: collection,
+		cache:      cache,
 	}
 }
 

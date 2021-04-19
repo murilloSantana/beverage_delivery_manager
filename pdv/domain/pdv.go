@@ -2,12 +2,10 @@ package domain
 
 import (
 	logger "beverage_delivery_manager/config/log"
-	"encoding/json"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"io"
 )
-
-//TODO configure marshal/unmarshal different from buit-in (it is already known that there are more performant alternatives)
 
 type MultiPolygonCoordinates [][][][2]float64
 type PointCoordinates []float64
@@ -21,7 +19,6 @@ type Pdv struct {
 	Address      Point        `json:"address" bson:"address"`
 }
 
-// Multipolygon implements something
 type MultiPolygon struct {
 	Type        string                  `json:"type" bson:"type"`
 	Coordinates MultiPolygonCoordinates `json:"coordinates" bson:"coordinates"`
@@ -32,8 +29,9 @@ type Point struct {
 	Coordinates PointCoordinates `json:"coordinates" bson:"coordinates"`
 }
 
-//TODO look for alternatives so as not to need to marshal the value received
 func (m *MultiPolygon) UnmarshalGQL(v interface{}) error {
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 	value, err := json.Marshal(v)
 	if err != nil {
 		return fmt.Errorf("invalid raw multiPolygon json")
@@ -53,6 +51,7 @@ func (m *MultiPolygon) UnmarshalGQL(v interface{}) error {
 
 func (m MultiPolygon) MarshalGQL(w io.Writer) {
 	log := logger.NewLogger()
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 	mp, err := json.Marshal(m)
 	if err != nil {
@@ -68,6 +67,8 @@ func (m MultiPolygon) MarshalGQL(w io.Writer) {
 }
 
 func (p *Point) UnmarshalGQL(v interface{}) error {
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 	value, err := json.Marshal(v)
 	if err != nil {
 		return fmt.Errorf("invalid raw point json")
@@ -87,6 +88,7 @@ func (p *Point) UnmarshalGQL(v interface{}) error {
 
 func (p Point) MarshalGQL(w io.Writer) {
 	log := logger.NewLogger()
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 	point, err := json.Marshal(p)
 	if err != nil {

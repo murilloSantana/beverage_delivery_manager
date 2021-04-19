@@ -7,6 +7,7 @@ require (
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
