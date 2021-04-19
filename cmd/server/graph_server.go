@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
@@ -18,7 +19,7 @@ type graphServer struct {
 	sts      settings.Settings
 }
 
-func New(sts settings.Settings, mongoCli *mongo.Client) Runner {
+func New(sts settings.Settings, mongoCli *mongo.Client, _ *redis.Client) Runner {
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: newResolver(sts, mongoCli)}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

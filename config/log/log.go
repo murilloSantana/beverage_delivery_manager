@@ -1,6 +1,6 @@
 package log
 
-import log "github.com/sirupsen/logrus"
+import "github.com/sirupsen/logrus"
 
 //go:generate mockery --name Logger --case=underscore --output ../../mocks
 
@@ -19,9 +19,9 @@ func NewLogger() Logger {
 }
 
 func (l loggerWrap) Info(values map[string]interface{}, msg interface{}) {
-	log.WithFields(values).Info(msg)
+	logrus.WithFields(values).Info(msg)
 }
 
 func (l loggerWrap) Error(values map[string]interface{}, msg interface{}) {
-	log.WithFields(values).Error(msg)
+	logrus.WithFields(values).Error(msg)
 }

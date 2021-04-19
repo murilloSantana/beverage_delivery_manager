@@ -8,17 +8,15 @@ import (
 	"time"
 )
 
-func NewClient(sts settings.Settings) (*mongo.Client, error) {
-	mongoSts := sts.MongoSettings
-
+func NewClient(sts settings.MongoSettings) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	opts := options.Client().
-		ApplyURI(mongoSts.URL).
-		SetMinPoolSize(mongoSts.MinPoolSize).
-		SetMaxPoolSize(mongoSts.MaxPoolSize).
-		SetMaxConnIdleTime(mongoSts.MaxConnIdleTime)
+		ApplyURI(sts.URL).
+		SetMinPoolSize(sts.MinPoolSize).
+		SetMaxPoolSize(sts.MaxPoolSize).
+		SetMaxConnIdleTime(sts.MaxConnIdleTime)
 
 	mongoCli, err := mongo.Connect(ctx, opts)
 	if err != nil {
