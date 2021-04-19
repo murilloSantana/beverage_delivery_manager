@@ -23,5 +23,10 @@ func NewClient(sts settings.MongoSettings) (*mongo.Client, error) {
 		return nil, err
 	}
 
+	err = mongoCli.Ping(context.Background(), nil)
+	if err != nil {
+		return nil, err
+	}
+
 	return mongoCli, nil
 }

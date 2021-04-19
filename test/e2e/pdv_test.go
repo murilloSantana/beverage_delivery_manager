@@ -33,7 +33,7 @@ func (p *pdvE2ETestSuite) setupTest() {
 	}
 
 	sts := settings.New()
-	mongoCli, err := mongoSettings.NewClient(sts)
+	mongoCli, err := mongoSettings.NewClient(sts.MongoSettings)
 	if err != nil {
 		log.Fatal(err)
 	}

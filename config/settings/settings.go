@@ -25,12 +25,12 @@ type MongoSettings struct {
 }
 
 type RedisSettings struct {
-	URL string
-	Database int
-	Password string
+	URL          string
+	Database     int
+	Password     string
 	MinIdleConns int
-	IdleTimeout time.Duration
-	PoolSize int
+	IdleTimeout  time.Duration
+	PoolSize     int
 }
 
 func New(opts ...OptSettings) Settings {
@@ -71,11 +71,11 @@ func newRedisSettings() RedisSettings {
 	minIdleConns, _ := strconv.Atoi(os.Getenv("REDIS_MIN_IDLE_CONN"))
 
 	return RedisSettings{
-		URL: os.Getenv("REDIS_URL"),
-		Database: db,
-		Password: os.Getenv("REDIS_PASSWORD"),
-		PoolSize: poolSize,
+		URL:          os.Getenv("REDIS_URL"),
+		Database:     db,
+		Password:     os.Getenv("REDIS_PASSWORD"),
+		PoolSize:     poolSize,
 		MinIdleConns: minIdleConns,
-		IdleTimeout: idleTimeout,
+		IdleTimeout:  idleTimeout,
 	}
 }
