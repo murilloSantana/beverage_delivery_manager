@@ -11,7 +11,7 @@ import (
 type PdvUseCase interface {
 	Save(pdv domain.Pdv) (domain.Pdv, error)
 	FindByID(ID string) (domain.Pdv, error)
-	FindByAddress(coordinates domain.PointCoordinates) (domain.Pdv, error)
+	FindByAddress(point domain.Point) (domain.Pdv, error)
 }
 
 type pdvUseCase struct {
@@ -60,8 +60,8 @@ func (p pdvUseCase) FindByID(ID string) (domain.Pdv, error) {
 	return pdv, nil
 }
 
-func (p pdvUseCase) FindByAddress(coordinates domain.PointCoordinates) (domain.Pdv, error) {
-	pdv, err := p.repository.FindByAddress(coordinates)
+func (p pdvUseCase) FindByAddress(point domain.Point) (domain.Pdv, error) {
+	pdv, err := p.repository.FindByAddress(point)
 	if err != nil {
 		return domain.Pdv{}, err
 	}

@@ -13,20 +13,20 @@ type PdvUseCase struct {
 	mock.Mock
 }
 
-// FindByAddress provides a mock function with given fields: coordinates
-func (_m *PdvUseCase) FindByAddress(coordinates domain.PointCoordinates) (domain.Pdv, error) {
-	ret := _m.Called(coordinates)
+// FindByAddress provides a mock function with given fields: point
+func (_m *PdvUseCase) FindByAddress(point domain.Point) (domain.Pdv, error) {
+	ret := _m.Called(point)
 
 	var r0 domain.Pdv
-	if rf, ok := ret.Get(0).(func(domain.PointCoordinates) domain.Pdv); ok {
-		r0 = rf(coordinates)
+	if rf, ok := ret.Get(0).(func(domain.Point) domain.Pdv); ok {
+		r0 = rf(point)
 	} else {
 		r0 = ret.Get(0).(domain.Pdv)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(domain.PointCoordinates) error); ok {
-		r1 = rf(coordinates)
+	if rf, ok := ret.Get(1).(func(domain.Point) error); ok {
+		r1 = rf(point)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -23,13 +23,13 @@ generate:
 	@go generate ./...
 
 run-docker:
-	cd docker && docker-compose up --build
+	cd docker && docker-compose up -d --build
 
 stop-docker:
 	cd docker && docker-compose stop
 
-remove-docker: stop-docker
-	cd docker && docker-compose rm -f
+remove-docker:
+	cd docker && docker-compose down --remove-orphans
 
 gqlgen: delete-generated-resolver
 	@go run github.com/99designs/gqlgen --verbose

@@ -6,7 +6,8 @@ require (
 	github.com/99designs/gqlgen v0.13.0
 	github.com/joho/godotenv v1.3.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/vektra/mockery/v2 v2.7.4 // indirect
+	go.mongodb.org/mongo-driver v1.5.1
 )

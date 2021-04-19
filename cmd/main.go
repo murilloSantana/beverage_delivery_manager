@@ -2,11 +2,17 @@ package main
 
 import (
 	"beverage_delivery_manager/cmd/server"
+	"beverage_delivery_manager/config/mongo"
 	"beverage_delivery_manager/config/settings"
 	"log"
 )
 
 func main() {
 	sts := settings.New()
-	log.Fatal(server.New(sts))
+	mongoCli, err := mongo.NewClient(sts)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Fatal(server.New(sts, mongoCli).Run())
 }

@@ -33,9 +33,9 @@ func (r *queryResolver) FindPdvByID(_ context.Context, input model.PdvIDInput) (
 }
 
 func (r *queryResolver) FindPdvByAddress(_ context.Context, input model.PdvAddressInput) (*domain.Pdv, error) {
-	coordinates := domain.PointCoordinates{input.Longitude, input.Latitude}
+	point := domain.Point{Type: "Point", Coordinates: domain.PointCoordinates{input.Longitude, input.Latitude}}
 
-	pdv, err := r.PdvUseCase.FindByAddress(coordinates)
+	pdv, err := r.PdvUseCase.FindByAddress(point)
 	if err != nil {
 		return nil, err
 	}

@@ -15,5 +15,5 @@ type PdvRepository interface {
 	HasDocument(document string) (bool, error)
 	Save(pdv domain.Pdv) (domain.Pdv, error)
 	FindByID(ID string) (domain.Pdv, error)
-	FindByAddress(coordinates domain.PointCoordinates) (domain.Pdv, error)
+	FindByAddress(point domain.Point) (domain.Pdv, error)
 }

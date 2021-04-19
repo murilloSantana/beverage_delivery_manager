@@ -29,7 +29,7 @@ func withID(ID string) DefaultPdvOption {
 }
 
 func newPdv(opts ...DefaultPdvOption) domain.Pdv {
-	pdv := domain.Pdv {
+	pdv := domain.Pdv{
 		TradingName: "Mercado Pinheiros",
 		OwnerName:   "Luiz Santo",
 		Document:    "06004905000116",
@@ -53,6 +53,13 @@ func newPdv(opts ...DefaultPdvOption) domain.Pdv {
 	}
 
 	return pdv
+}
+
+func newPoint(coordinates ...float64) domain.Point {
+	return domain.Point{
+		Type:        "Point",
+		Coordinates: coordinates,
+	}
 }
 
 func TestSave(t *testing.T) {
@@ -157,11 +164,11 @@ func TestFindByAddress(t *testing.T) {
 	t.Run("Should return error when find by address fail", func(t *testing.T) {
 		suite.setupTest()
 
-		coordinates := domain.PointCoordinates{-46.57421, -21.785742}
+		point := newPoint(-46.57421, -21.785742)
 		expectedErr := errors.New("find by address error")
 
-		suite.pdvRepository.On("FindByAddress", coordinates).Return(domain.Pdv{}, expectedErr)
-		actual, actualErr := suite.pdvUseCase.FindByAddress(coordinates)
+		suite.pdvRepository.On("FindByAddress", point).Return(domain.Pdv{}, expectedErr)
+		actual, actualErr := suite.pdvUseCase.FindByAddress(point)
 
 		assert.EqualError(t, actualErr, "find by address error")
 		assert.Empty(t, actual)
@@ -170,10 +177,10 @@ func TestFindByAddress(t *testing.T) {
 	t.Run("Should return empty PDV when the entered address is not in a coverage area", func(t *testing.T) {
 		suite.setupTest()
 
-		coordinates := domain.PointCoordinates{-46.57421, -21.785742}
+		point := newPoint(-46.57421, -21.785742)
 
-		suite.pdvRepository.On("FindByAddress", coordinates).Return(domain.Pdv{}, nil)
-		actual, actualErr := suite.pdvUseCase.FindByAddress(coordinates)
+		suite.pdvRepository.On("FindByAddress", point).Return(domain.Pdv{}, nil)
+		actual, actualErr := suite.pdvUseCase.FindByAddress(point)
 
 		assert.NoError(t, actualErr)
 		assert.Empty(t, actual)
@@ -185,10 +192,10 @@ func TestFindByAddress(t *testing.T) {
 		ID := "2345678"
 		expected := newPdv(withID(ID))
 
-		coordinates := domain.PointCoordinates{-46.57421, -21.785742}
+		point := newPoint(-46.57421, -21.785742)
 
-		suite.pdvRepository.On("FindByAddress", coordinates).Return(expected, nil)
-		actual, actualErr := suite.pdvUseCase.FindByAddress(coordinates)
+		suite.pdvRepository.On("FindByAddress", point).Return(expected, nil)
+		actual, actualErr := suite.pdvUseCase.FindByAddress(point)
 
 		assert.NoError(t, actualErr)
 		assert.Equal(t, expected, actual)

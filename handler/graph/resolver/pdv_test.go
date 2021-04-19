@@ -13,11 +13,11 @@ import (
 type DefaultPdvOption func(*domain.Pdv)
 
 type pdvResolverTestSuite struct {
-	resolver *Resolver
-	pdvUseCase       *mocks.PdvUseCase
-	pdv              domain.Pdv
-	pdvInput		model.PdvInput
-	pdvIDInput model.PdvIDInput
+	resolver        *Resolver
+	pdvUseCase      *mocks.PdvUseCase
+	pdv             domain.Pdv
+	pdvInput        model.PdvInput
+	pdvIDInput      model.PdvIDInput
 	pdvAddressInput model.PdvAddressInput
 }
 
@@ -41,7 +41,7 @@ func withID(ID string) DefaultPdvOption {
 }
 
 func newPdv(opts ...DefaultPdvOption) domain.Pdv {
-	pdv := domain.Pdv {
+	pdv := domain.Pdv{
 		TradingName: "Mercado Pinheiros",
 		OwnerName:   "Luiz Santo",
 		Document:    "06004905000116",
@@ -70,7 +70,7 @@ func newPdv(opts ...DefaultPdvOption) domain.Pdv {
 func newPdvAddressInput(longitude, latitude float64) model.PdvAddressInput {
 	return model.PdvAddressInput{
 		Longitude: longitude,
-		Latitude: latitude,
+		Latitude:  latitude,
 	}
 }
 
@@ -80,13 +80,20 @@ func newPdvIDInput(ID string) model.PdvIDInput {
 	}
 }
 
+func newPoint(coordinates ...float64) domain.Point {
+	return domain.Point{
+		Type:        "Point",
+		Coordinates: coordinates,
+	}
+}
+
 func pdvToPdvInput(pdv domain.Pdv) model.PdvInput {
 	return model.PdvInput{
-		TradingName: pdv.TradingName,
-		OwnerName: pdv.OwnerName,
-		Document: pdv.Document,
+		TradingName:  pdv.TradingName,
+		OwnerName:    pdv.OwnerName,
+		Document:     pdv.Document,
 		CoverageArea: pdv.CoverageArea,
-		Address: pdv.Address,
+		Address:      pdv.Address,
 	}
 }
 
@@ -169,8 +176,8 @@ func TestFindByAddress(t *testing.T) {
 
 		expectedErr := errors.New("find by address error")
 
-		coordinates := domain.PointCoordinates{suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude}
-		suite.pdvUseCase.On("FindByAddress", coordinates).Return(domain.Pdv{}, expectedErr)
+		point := newPoint(suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude)
+		suite.pdvUseCase.On("FindByAddress", point).Return(domain.Pdv{}, expectedErr)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(), suite.pdvAddressInput)
 
@@ -181,8 +188,8 @@ func TestFindByAddress(t *testing.T) {
 	t.Run("Should return empty PDV when the entered address is not in a coverage area", func(t *testing.T) {
 		suite.setupTest()
 
-		coordinates := domain.PointCoordinates{suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude}
-		suite.pdvUseCase.On("FindByAddress", coordinates).Return(domain.Pdv{}, nil)
+		point := newPoint(suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude)
+		suite.pdvUseCase.On("FindByAddress", point).Return(domain.Pdv{}, nil)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(), suite.pdvAddressInput)
 
@@ -195,8 +202,8 @@ func TestFindByAddress(t *testing.T) {
 
 		expected := newPdv()
 
-		coordinates := domain.PointCoordinates{suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude}
-		suite.pdvUseCase.On("FindByAddress", coordinates).Return(suite.pdv, nil)
+		point := newPoint(suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude)
+		suite.pdvUseCase.On("FindByAddress", point).Return(suite.pdv, nil)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(), suite.pdvAddressInput)
 
