@@ -20,6 +20,15 @@ func WithDocument(document string) DefaultPdvOption {
 	}
 }
 
+func WithAddress(address ...float64) DefaultPdvOption {
+	return func(pdv *domain.Pdv) {
+		pdv.Address = domain.Point{
+			Type: "Point",
+			Coordinates: address,
+		}
+	}
+}
+
 func NewPdv(opts ...DefaultPdvOption) domain.Pdv {
 	pdv := domain.Pdv{
 		TradingName: "Mercado Pinheiros",
@@ -50,6 +59,13 @@ func NewPdv(opts ...DefaultPdvOption) domain.Pdv {
 func NewPdvIDInput(ID string) model.PdvIDInput {
 	return model.PdvIDInput{
 		ID: ID,
+	}
+}
+
+func NewPdvAddressInput(long, lat float64) model.PdvAddressInput {
+	return model.PdvAddressInput{
+		Longitude: long,
+		Latitude: lat,
 	}
 }
 

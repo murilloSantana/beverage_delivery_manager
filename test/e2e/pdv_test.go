@@ -58,7 +58,7 @@ func newResolver(sts settings.Settings, mongoCli *mongo.Client) *resolver.Resolv
 	}
 }
 
-func TestSave(t *testing.T) {
+func TestBusinessRules(t *testing.T) {
 	suite := pdvE2ETestSuite{}
 
 	suite.setupTest()
@@ -69,28 +69,59 @@ func TestSave(t *testing.T) {
 	t.Run("Should return new pdv created", func(t *testing.T) {
 		pdvInput := helper.PdvToPdvInput(helper.NewPdv())
 
-		actual, mutationErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
+		expected, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
-		assert.NoError(t, mutationErr)
+		assert.NoError(t, expectedErr)
 
-		expected, queryErr := suite.resolver.Query().FindPdvByID(context.Background(), helper.NewPdvIDInput(actual.ID))
+		actual, actualErr := suite.resolver.Query().FindPdvByID(context.Background(), helper.NewPdvIDInput(expected.ID))
 
-		assert.NoError(t, queryErr)
+		assert.NoError(t, actualErr)
 		assert.Equal(t, expected, actual)
 	})
 
 	t.Run("Should return error when document already exists", func(t *testing.T) {
 		pdvInput := helper.PdvToPdvInput(helper.NewPdv())
 
-		_, mutationErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
+		_, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
-		assert.NoError(t, mutationErr)
+		assert.NoError(t, expectedErr)
 
-		expected, actualMutationErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
+		actual, actualErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
-		assert.NoError(t, mutationErr)
+		assert.EqualError(t, actualErr, "document already exists")
+		assert.Nil(t, actual)
+	})
 
-		assert.EqualError(t, actualMutationErr, "document already exists")
-		assert.Nil(t, expected)
+	t.Run("Should return pdv found by address", func(t *testing.T) {
+		pdvInput := helper.PdvToPdvInput(helper.NewPdv(helper.WithAddress(-46.57421, -21.785842)))
+
+		expected, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
+
+		assert.NoError(t, expectedErr)
+
+		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(),
+			helper.NewPdvAddressInput(-46.57421, -21.785842))
+
+		assert.NoError(t, actualErr)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("Should return the correct pdv by id", func(t *testing.T) {
+		pdvInput := helper.PdvToPdvInput(helper.NewPdv())
+
+		expected, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
+
+		assert.NoError(t, expectedErr)
+
+		nonExistentID := "2345678"
+		actual, actualErr := suite.resolver.Query().FindPdvByID(context.Background(), helper.NewPdvIDInput(nonExistentID))
+
+		assert.NoError(t, actualErr)
+		assert.Empty(t, actual)
+
+		actual, actualErr = suite.resolver.Query().FindPdvByID(context.Background(), helper.NewPdvIDInput(expected.ID))
+
+		assert.NoError(t, actualErr)
+		assert.Equal(t, expected, actual)
 	})
 }
