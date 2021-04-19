@@ -1,16 +1,15 @@
 package usecase
 
 import (
+	"beverage_delivery_manager/mocks"
+	"beverage_delivery_manager/mocks/helper"
 	"beverage_delivery_manager/pdv/domain"
-	"beverage_delivery_manager/pdv/repository/mocks"
 	"context"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
 )
-
-type DefaultPdvOption func(*domain.Pdv)
 
 type pdvUseCaseTestSuite struct {
 	pdvUseCase    PdvUseCase
@@ -23,40 +22,7 @@ func (suite *pdvUseCaseTestSuite) setupTest() {
 	suite.ctx = context.Background()
 	suite.pdvRepository = new(mocks.PdvRepository)
 	suite.pdvUseCase = NewPdvUseCase(suite.pdvRepository)
-	suite.pdv = newPdv()
-}
-
-func withID(ID string) DefaultPdvOption {
-	return func(pdv *domain.Pdv) {
-		pdv.ID = ID
-	}
-}
-
-func newPdv(opts ...DefaultPdvOption) domain.Pdv {
-	pdv := domain.Pdv{
-		TradingName: "Mercado Pinheiros",
-		OwnerName:   "Luiz Santo",
-		Document:    "06004905000116",
-		CoverageArea: domain.MultiPolygon{
-			Type: "MultiPolygon",
-			Coordinates: [][][][2]float64{{{{-46.623238, -21.785538}, {-46.607616, -21.819803}, {-46.56676, -21.864737},
-				{-46.555088, -21.859322}, {-46.552685, -21.848167}, {-46.546677, -21.836536}, {-46.51801, -21.832712},
-				{-46.511143, -21.821877}, {-46.489857, -21.81805}, {-46.480587, -21.810083}, {-46.503418, -21.797491},
-				{-46.510284, -21.793667}, {-46.518696, -21.794304}, {-46.52831, -21.785538}, {-46.56882, -21.767365},
-				{-46.600235, -21.77119}, {-46.619118, -21.768799}, {-46.627872, -21.7739}, {-46.628044, -21.782349},
-				{-46.623238, -21.785538}}}},
-		},
-		Address: domain.Point{
-			Type:        "Point",
-			Coordinates: []float64{-46.57421, -21.785742},
-		},
-	}
-
-	for _, opt := range opts {
-		opt(&pdv)
-	}
-
-	return pdv
+	suite.pdv = helper.NewPdv()
 }
 
 func newPoint(coordinates ...float64) domain.Point {
@@ -113,7 +79,7 @@ func TestSave(t *testing.T) {
 	t.Run("Should return new pdv created", func(t *testing.T) {
 		suite.setupTest()
 
-		expected := newPdv(withID("234343435454"))
+		expected := helper.NewPdv(helper.WithID("234343435454"))
 
 		suite.pdvRepository.On("HasDocument", suite.pdv.Document).Return(false, nil)
 		suite.pdvRepository.On("GenerateNewID").Return(generateNewIDMock)
@@ -158,7 +124,7 @@ func TestFindByID(t *testing.T) {
 		suite.setupTest()
 
 		ID := "2345678"
-		expected := newPdv(withID(ID))
+		expected := helper.NewPdv(helper.WithID(ID))
 
 		suite.pdvRepository.On("FindByID", ID).Return(expected, nil)
 		actual, actualErr := suite.pdvUseCase.FindByID(ID)
@@ -200,7 +166,7 @@ func TestFindByAddress(t *testing.T) {
 		suite.setupTest()
 
 		ID := "2345678"
-		expected := newPdv(withID(ID))
+		expected := helper.NewPdv(helper.WithID(ID))
 
 		point := newPoint(-46.57421, -21.785742)
 

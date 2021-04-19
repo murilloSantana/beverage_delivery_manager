@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-//go:generate mockery --name PdvRepository --case=underscore
+//go:generate mockery --name PdvRepository --case=underscore --output ../../mocks
 
 // PdvRepository it is the interface that involves functions that make the integration with storage possible
 //

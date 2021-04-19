@@ -23,7 +23,7 @@ generate:
 	@go generate ./...
 
 run-docker:
-	cd docker && docker-compose up -d --build
+	cd docker && docker-compose up -d
 
 stop-docker:
 	cd docker && docker-compose stop

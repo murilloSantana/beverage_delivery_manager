@@ -2,7 +2,7 @@ package log
 
 import log "github.com/sirupsen/logrus"
 
-//go:generate mockery --name Logger --case=underscore
+//go:generate mockery --name Logger --case=underscore --output ../../mocks
 
 type LoggerFields map[string]interface{}
 

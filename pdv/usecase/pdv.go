@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-//go:generate mockery --name PdvUseCase --case=underscore
+//go:generate mockery --name PdvUseCase --case=underscore --output ../../mocks
 
 type PdvUseCase interface {
 	Save(ctx context.Context, pdv domain.Pdv) (domain.Pdv, error)

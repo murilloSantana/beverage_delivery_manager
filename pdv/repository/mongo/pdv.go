@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-//go:generate mockery --name Collection --case=underscore
+//go:generate mockery --name Collection --case=underscore --output ../../../mocks
 
 type Collection interface {
 	InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
