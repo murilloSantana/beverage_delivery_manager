@@ -6,6 +6,7 @@ import (
 )
 
 //go:generate mockery --name PdvRepository --case=underscore --output ../../mocks
+//go:generate mockery --name PdvCache --case=underscore --output ../../mocks
 
 // PdvRepository it is the interface that involves functions that make the integration with storage possible
 //
@@ -16,8 +17,17 @@ import (
 // dynamically generated in the application and not informed by the client
 type PdvRepository interface {
 	HasDocument(document string) (bool, error)
+	GenerateNewID() func() string
 	Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (domain.Pdv, error)
+	PdvFinder
+}
+
+type PdvCache interface {
+	PdvFinder
+	Save(key string, pdv domain.Pdv) error
+}
+
+type PdvFinder interface {
 	FindByID(ID string) (domain.Pdv, error)
 	FindByAddress(point domain.Point) (domain.Pdv, error)
-	GenerateNewID() func() string
 }

@@ -4,6 +4,7 @@ import (
 	"beverage_delivery_manager/pdv/domain"
 	"beverage_delivery_manager/pdv/repository"
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,11 +23,13 @@ type Collection interface {
 
 type pdvRepository struct {
 	collection Collection
+	cache      repository.PdvCache
 }
 
-func NewPdvRepository(collection Collection) repository.PdvRepository {
+func NewPdvRepository(collection Collection, cache repository.PdvCache) repository.PdvRepository {
 	return pdvRepository{
 		collection: collection,
+		cache:      cache,
 	}
 }
 
@@ -64,6 +67,10 @@ func withCountOptions() *options.CountOptions {
 }
 
 func (p pdvRepository) FindByID(ID string) (domain.Pdv, error) {
+	if pdv, err := p.cache.FindByID(ID); err == nil {
+		return pdv, nil
+	}
+
 	var pdv domain.Pdv
 	filter := bson.M{"_id": ID}
 
@@ -75,6 +82,10 @@ func (p pdvRepository) FindByID(ID string) (domain.Pdv, error) {
 		return domain.Pdv{}, err
 	}
 
+	go func() {
+		_ = p.cache.Save(ID, pdv)
+	}()
+
 	return pdv, nil
 }
 
@@ -84,6 +95,10 @@ func withFindOneOptions() *options.FindOneOptions {
 }
 
 func (p pdvRepository) FindByAddress(point domain.Point) (domain.Pdv, error) {
+	if pdv, err := p.cache.FindByAddress(point); err == nil {
+		return pdv, nil
+	}
+
 	ctx := context.Background()
 
 	cursor, err := p.collection.Aggregate(ctx, withAddressPipeline(point), withAggregateOptions())
@@ -102,7 +117,14 @@ func (p pdvRepository) FindByAddress(point domain.Point) (domain.Pdv, error) {
 		return domain.Pdv{}, err
 	}
 
-	return pdvs[0], nil
+	pdv := pdvs[0]
+
+	go func() {
+		key := fmt.Sprintf("%v:%v", point.Coordinates[0], point.Coordinates[1])
+		_ = p.cache.Save(key, pdv)
+	}()
+
+	return pdv, nil
 }
 
 func withAggregateOptions() *options.AggregateOptions {

@@ -12,6 +12,7 @@ type OptSettings func(*Settings)
 type Settings struct {
 	Port          string
 	MongoSettings MongoSettings
+	RedisSettings RedisSettings
 }
 
 type MongoSettings struct {
@@ -23,10 +24,20 @@ type MongoSettings struct {
 	MaxConnIdleTime time.Duration
 }
 
+type RedisSettings struct {
+	URL          string
+	Database     int
+	Password     string
+	MinIdleConns int
+	IdleTimeout  time.Duration
+	PoolSize     int
+}
+
 func New(opts ...OptSettings) Settings {
 	s := &Settings{
 		Port:          os.Getenv("PORT"),
 		MongoSettings: newMongoSettings(),
+		RedisSettings: newRedisSettings(),
 	}
 
 	for _, opt := range opts {
@@ -50,5 +61,21 @@ func newMongoSettings() MongoSettings {
 		MinPoolSize:     uint64(minPool),
 		MaxPoolSize:     uint64(maxPool),
 		MaxConnIdleTime: maxConnIdleTime,
+	}
+}
+
+func newRedisSettings() RedisSettings {
+	idleTimeout := 5 * time.Minute
+	db, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
+	poolSize, _ := strconv.Atoi(os.Getenv("REDIS_POOL_SIZE"))
+	minIdleConns, _ := strconv.Atoi(os.Getenv("REDIS_MIN_IDLE_CONN"))
+
+	return RedisSettings{
+		URL:          os.Getenv("REDIS_URL"),
+		Database:     db,
+		Password:     os.Getenv("REDIS_PASSWORD"),
+		PoolSize:     poolSize,
+		MinIdleConns: minIdleConns,
+		IdleTimeout:  idleTimeout,
 	}
 }

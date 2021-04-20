@@ -23,7 +23,7 @@ func WithDocument(document string) DefaultPdvOption {
 func WithAddress(address ...float64) DefaultPdvOption {
 	return func(pdv *domain.Pdv) {
 		pdv.Address = domain.Point{
-			Type: "Point",
+			Type:        "Point",
 			Coordinates: address,
 		}
 	}
@@ -65,7 +65,7 @@ func NewPdvIDInput(ID string) model.PdvIDInput {
 func NewPdvAddressInput(long, lat float64) model.PdvAddressInput {
 	return model.PdvAddressInput{
 		Longitude: long,
-		Latitude: lat,
+		Latitude:  lat,
 	}
 }
 
