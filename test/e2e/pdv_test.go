@@ -2,16 +2,14 @@ package e2e
 
 import (
 	mongoSettings "beverage_delivery_manager/config/mongo"
+	redisSettings "beverage_delivery_manager/config/redis"
 	"beverage_delivery_manager/config/settings"
 	"beverage_delivery_manager/handler/graph/resolver"
 	"beverage_delivery_manager/mocks/helper"
-	mongoRepository "beverage_delivery_manager/pdv/repository/mongo"
-	"beverage_delivery_manager/pdv/usecase"
 	"context"
 	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"os/exec"
 	"testing"
@@ -38,23 +36,18 @@ func (p *pdvE2ETestSuite) setupTest() {
 		log.Fatal(err)
 	}
 
-	p.resolver = newResolver(sts, mongoCli)
+	redisCli, err := redisSettings.NewRedisClient(sts.RedisSettings)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	p.resolver = resolver.NewResolver(sts, mongoCli, redisCli)
 }
 
 func (p *pdvE2ETestSuite) tearDownTest() {
 	cmd := exec.Command("docker-compose", "down")
 	if err := cmd.Run(); err != nil {
 		fmt.Println(err)
-	}
-}
-
-func newResolver(sts settings.Settings, mongoCli *mongo.Client) *resolver.Resolver {
-	mongoSts := sts.MongoSettings
-	database := mongoCli.Database(mongoSts.DatabaseName)
-	pdvRepository := mongoRepository.NewPdvRepository(database.Collection(mongoSts.CollectionName), nil)
-
-	return &resolver.Resolver{
-		PdvUseCase: usecase.NewPdvUseCase(pdvRepository),
 	}
 }
 
@@ -93,17 +86,23 @@ func TestBusinessRules(t *testing.T) {
 	})
 
 	t.Run("Should return pdv found by address", func(t *testing.T) {
-		pdvInput := helper.PdvToPdvInput(helper.NewPdv(helper.WithAddress(-46.57421, -21.785842)))
+		pdvInput := helper.PdvToPdvInput(helper.NewPdv(helper.WithAddress(-46.623238, -21.785538)))
 
 		expected, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
 		assert.NoError(t, expectedErr)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(),
-			helper.NewPdvAddressInput(-46.57421, -21.785842))
+			helper.NewPdvAddressInput(-46.623238, -21.785538))
 
 		assert.NoError(t, actualErr)
 		assert.Equal(t, expected, actual)
+
+		cachedActual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(),
+			helper.NewPdvAddressInput(-46.623238, -21.785538))
+
+		assert.NoError(t, actualErr)
+		assert.Equal(t, expected, cachedActual)
 	})
 
 	t.Run("Should return the correct pdv by id", func(t *testing.T) {

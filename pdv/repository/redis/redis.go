@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	jsoniter "github.com/json-iterator/go"
+	"time"
 )
 
 type redisRepository struct {
@@ -15,7 +16,7 @@ type redisRepository struct {
 	jsonMarshal   func(v interface{}) ([]byte, error)
 }
 
-func NewRedisRepository(client *redis.Client) repository.Cache {
+func NewRedisRepository(client *redis.Client) repository.PdvCache {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 	return redisRepository{
@@ -47,6 +48,22 @@ func (r redisRepository) FindByID(ID string) (domain.Pdv, error) {
 }
 
 func (r redisRepository) FindByAddress(point domain.Point) (domain.Pdv, error) {
-	key := fmt.Sprintf("long%v:lat%v", point.Coordinates[0], point.Coordinates[1])
+	key := fmt.Sprintf("%v:%v", point.Coordinates[0], point.Coordinates[1])
 	return r.findByKey(key)
+}
+
+func (r redisRepository) Save(key string, pdv domain.Pdv) error {
+	v, err := r.jsonMarshal(pdv)
+
+	if err != nil {
+		return err
+	}
+
+	err = r.client.Set(context.Background(), key, v, 30*time.Minute).Err()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
