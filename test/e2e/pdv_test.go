@@ -36,7 +36,7 @@ func (p *pdvE2ETestSuite) setupTest() {
 		log.Fatal(err)
 	}
 
-	redisCli, err := redisSettings.NewRedisClient(sts.RedisSettings)
+	redisCli, err := redisSettings.NewClient(sts.RedisSettings)
 	if err != nil {
 		log.Fatal(err)
 	}

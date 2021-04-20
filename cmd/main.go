@@ -15,7 +15,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	redisCli, err := redis.NewRedisClient(sts.RedisSettings)
+	redisCli, err := redis.NewClient(sts.RedisSettings)
 	if err != nil {
 		log.Fatal(err)
 	}

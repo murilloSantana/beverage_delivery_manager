@@ -2,10 +2,13 @@ package server
 
 import (
 	"beverage_delivery_manager/config/settings"
+	"beverage_delivery_manager/handler/graph/config"
 	"beverage_delivery_manager/handler/graph/generated"
 	"beverage_delivery_manager/handler/graph/resolver"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,8 +21,16 @@ type graphServer struct {
 }
 
 func New(sts settings.Settings, mongoCli *mongo.Client, redisCli *redis.Client) Runner {
+	apq, _ := config.NewAPQ(sts.RedisSettings)
+
+	resolver := resolver.NewResolver(sts, mongoCli, redisCli)
 	srv := handler.
-		NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver.NewResolver(sts, mongoCli, redisCli)}))
+		New(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
+
+	srv.Use(extension.AutomaticPersistedQuery{Cache: apq})
+	srv.AddTransport(transport.Options{})
+	srv.AddTransport(transport.GET{})
+	srv.AddTransport(transport.POST{})
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func NewRedisClient(sts settings.RedisSettings) (*redis.Client, error) {
+func NewClient(sts settings.RedisSettings) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:         sts.URL,
 		Password:     sts.Password,
