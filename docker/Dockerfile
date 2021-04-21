@@ -1,5 +1,7 @@
 FROM golang:1.15.10-alpine
 WORKDIR /usr/app
 COPY . .
+COPY cmd/main.go .
+RUN go install
 EXPOSE 5000
-CMD [ "go", "run", "cmd/main.go" ]
+ENTRYPOINT beverage_delivery_manager
