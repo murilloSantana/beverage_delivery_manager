@@ -15,14 +15,16 @@ type PdvUseCase struct {
 }
 
 // FindByAddress provides a mock function with given fields: point
-func (_m *PdvUseCase) FindByAddress(point domain.Point) (domain.Pdv, error) {
+func (_m *PdvUseCase) FindByAddress(point domain.Point) (*domain.Pdv, error) {
 	ret := _m.Called(point)
 
-	var r0 domain.Pdv
-	if rf, ok := ret.Get(0).(func(domain.Point) domain.Pdv); ok {
+	var r0 *domain.Pdv
+	if rf, ok := ret.Get(0).(func(domain.Point) *domain.Pdv); ok {
 		r0 = rf(point)
 	} else {
-		r0 = ret.Get(0).(domain.Pdv)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.Pdv)
+		}
 	}
 
 	var r1 error
@@ -36,14 +38,16 @@ func (_m *PdvUseCase) FindByAddress(point domain.Point) (domain.Pdv, error) {
 }
 
 // FindByID provides a mock function with given fields: ID
-func (_m *PdvUseCase) FindByID(ID string) (domain.Pdv, error) {
+func (_m *PdvUseCase) FindByID(ID string) (*domain.Pdv, error) {
 	ret := _m.Called(ID)
 
-	var r0 domain.Pdv
-	if rf, ok := ret.Get(0).(func(string) domain.Pdv); ok {
+	var r0 *domain.Pdv
+	if rf, ok := ret.Get(0).(func(string) *domain.Pdv); ok {
 		r0 = rf(ID)
 	} else {
-		r0 = ret.Get(0).(domain.Pdv)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.Pdv)
+		}
 	}
 
 	var r1 error
@@ -57,14 +61,16 @@ func (_m *PdvUseCase) FindByID(ID string) (domain.Pdv, error) {
 }
 
 // Save provides a mock function with given fields: ctx, pdv
-func (_m *PdvUseCase) Save(ctx context.Context, pdv domain.Pdv) (domain.Pdv, error) {
+func (_m *PdvUseCase) Save(ctx context.Context, pdv domain.Pdv) (*domain.Pdv, error) {
 	ret := _m.Called(ctx, pdv)
 
-	var r0 domain.Pdv
-	if rf, ok := ret.Get(0).(func(context.Context, domain.Pdv) domain.Pdv); ok {
+	var r0 *domain.Pdv
+	if rf, ok := ret.Get(0).(func(context.Context, domain.Pdv) *domain.Pdv); ok {
 		r0 = rf(ctx, pdv)
 	} else {
-		r0 = ret.Get(0).(domain.Pdv)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.Pdv)
+		}
 	}
 
 	var r1 error
