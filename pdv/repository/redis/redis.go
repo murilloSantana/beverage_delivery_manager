@@ -26,28 +26,28 @@ func NewRedisRepository(client *redis.Client) repository.PdvCache {
 	}
 }
 
-func (r redisRepository) findByKey(key string) (domain.Pdv, error) {
+func (r redisRepository) findByKey(key string) (*domain.Pdv, error) {
 	resp, err := r.client.Get(context.Background(), key).Bytes()
 
 	if err != nil {
-		return domain.Pdv{}, err
+		return nil, err
 	}
 
 	var pdv domain.Pdv
 	err = r.jsonUnmarshal(resp, &pdv)
 
 	if err != nil {
-		return domain.Pdv{}, err
+		return nil, err
 	}
 
-	return pdv, nil
+	return &pdv, nil
 }
 
-func (r redisRepository) FindByID(ID string) (domain.Pdv, error) {
+func (r redisRepository) FindByID(ID string) (*domain.Pdv, error) {
 	return r.findByKey(ID)
 }
 
-func (r redisRepository) FindByAddress(point domain.Point) (domain.Pdv, error) {
+func (r redisRepository) FindByAddress(point domain.Point) (*domain.Pdv, error) {
 	key := fmt.Sprintf("%v:%v", point.Coordinates[0], point.Coordinates[1])
 	return r.findByKey(key)
 }

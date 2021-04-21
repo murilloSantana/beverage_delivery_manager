@@ -29,7 +29,7 @@ func WithAddress(address ...float64) DefaultPdvOption {
 	}
 }
 
-func NewPdv(opts ...DefaultPdvOption) domain.Pdv {
+func NewPdv(opts ...DefaultPdvOption) *domain.Pdv {
 	pdv := domain.Pdv{
 		TradingName: "Mercado Pinheiros",
 		OwnerName:   "Luiz Santo",
@@ -53,7 +53,7 @@ func NewPdv(opts ...DefaultPdvOption) domain.Pdv {
 		opt(&pdv)
 	}
 
-	return pdv
+	return &pdv
 }
 
 func NewPdvIDInput(ID string) model.PdvIDInput {

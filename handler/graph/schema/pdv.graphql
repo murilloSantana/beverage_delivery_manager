@@ -28,10 +28,10 @@ input PdvAddressInput {
 }
 
 extend type Query {
-    findPdvById(input: PdvIdInput!): Pdv!
-    findPdvByAddress(input: PdvAddressInput!): Pdv!
+    findPdvById(input: PdvIdInput!): Pdv
+    findPdvByAddress(input: PdvAddressInput!): Pdv
 }
 
 extend type Mutation {
-    savePdv(input: PdvInput!): Pdv
+    savePdv(input: PdvInput!): Pdv!
 }

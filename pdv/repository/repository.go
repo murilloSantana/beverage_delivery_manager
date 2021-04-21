@@ -18,7 +18,7 @@ import (
 type PdvRepository interface {
 	HasDocument(document string) (bool, error)
 	GenerateNewID() func() string
-	Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (domain.Pdv, error)
+	Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (*domain.Pdv, error)
 	PdvFinder
 }
 
@@ -28,6 +28,6 @@ type PdvCache interface {
 }
 
 type PdvFinder interface {
-	FindByID(ID string) (domain.Pdv, error)
-	FindByAddress(point domain.Point) (domain.Pdv, error)
+	FindByID(ID string) (*domain.Pdv, error)
+	FindByAddress(point domain.Point) (*domain.Pdv, error)
 }

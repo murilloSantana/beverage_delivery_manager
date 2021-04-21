@@ -39,11 +39,11 @@ func (p pdvRepository) GenerateNewID() func() string {
 	}
 }
 
-func (p pdvRepository) Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (domain.Pdv, error) {
+func (p pdvRepository) Save(ctx context.Context, pdv domain.Pdv, generateNewID func() string) (*domain.Pdv, error) {
 	pdv.ID = generateNewID()
 	resp, err := p.collection.InsertOne(ctx, pdv)
 	if err != nil {
-		return domain.Pdv{}, err
+		return nil, err
 	}
 
 	return p.FindByID(resp.InsertedID.(string))
@@ -66,7 +66,7 @@ func withCountOptions() *options.CountOptions {
 	return &options.CountOptions{Limit: &limit, MaxTime: &execLimitDuration}
 }
 
-func (p pdvRepository) FindByID(ID string) (domain.Pdv, error) {
+func (p pdvRepository) FindByID(ID string) (*domain.Pdv, error) {
 	if pdv, err := p.cache.FindByID(ID); err == nil {
 		return pdv, nil
 	}
@@ -76,17 +76,17 @@ func (p pdvRepository) FindByID(ID string) (domain.Pdv, error) {
 
 	if err := p.collection.FindOne(context.Background(), filter, withFindOneOptions()).Decode(&pdv); err != nil {
 		if err == mongo.ErrNoDocuments {
-			return domain.Pdv{}, nil
+			return nil, nil
 		}
 
-		return domain.Pdv{}, err
+		return nil, err
 	}
 
 	go func() {
 		_ = p.cache.Save(ID, pdv)
 	}()
 
-	return pdv, nil
+	return &pdv, nil
 }
 
 func withFindOneOptions() *options.FindOneOptions {
@@ -94,7 +94,7 @@ func withFindOneOptions() *options.FindOneOptions {
 	return &options.FindOneOptions{MaxTime: &execLimitDuration}
 }
 
-func (p pdvRepository) FindByAddress(point domain.Point) (domain.Pdv, error) {
+func (p pdvRepository) FindByAddress(point domain.Point) (*domain.Pdv, error) {
 	if pdv, err := p.cache.FindByAddress(point); err == nil {
 		return pdv, nil
 	}
@@ -103,18 +103,18 @@ func (p pdvRepository) FindByAddress(point domain.Point) (domain.Pdv, error) {
 
 	cursor, err := p.collection.Aggregate(ctx, withAddressPipeline(point), withAggregateOptions())
 	if err != nil {
-		return domain.Pdv{}, err
+		return nil, err
 	}
 
 	defer cursor.Close(ctx)
 
 	var pdvs []domain.Pdv
 	if !cursor.TryNext(ctx) {
-		return domain.Pdv{}, nil
+		return nil, nil
 	}
 
 	if err := cursor.All(ctx, &pdvs); err != nil {
-		return domain.Pdv{}, err
+		return nil, err
 	}
 
 	pdv := pdvs[0]
@@ -124,7 +124,7 @@ func (p pdvRepository) FindByAddress(point domain.Point) (domain.Pdv, error) {
 		_ = p.cache.Save(key, pdv)
 	}()
 
-	return pdv, nil
+	return &pdv, nil
 }
 
 func withAggregateOptions() *options.AggregateOptions {

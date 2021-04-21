@@ -67,7 +67,7 @@ func TestFindByID(t *testing.T) {
 		actual, actualErr := suite.cache.FindByID("2000")
 
 		assert.Error(t, actualErr)
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should throw error, because pdv found is invalid", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestFindByID(t *testing.T) {
 		actual, actualErr := suite.cache.FindByID(ID)
 
 		assert.EqualError(t, actualErr, "generic error")
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should return a valid pdv", func(t *testing.T) {
@@ -116,7 +116,7 @@ func TestFindAddress(t *testing.T) {
 		actual, actualErr := suite.cache.FindByAddress(suite.point)
 
 		assert.Error(t, actualErr)
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should throw error, because pdv found is invalid", func(t *testing.T) {
@@ -134,7 +134,7 @@ func TestFindAddress(t *testing.T) {
 		actual, actualErr := suite.cache.FindByAddress(suite.point)
 
 		assert.EqualError(t, actualErr, "generic error")
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should return a valid pdv", func(t *testing.T) {
@@ -168,7 +168,7 @@ func TestSavePdv(t *testing.T) {
 		defer suite.miniredis.Close()
 
 		ID := "2345678"
-		actualErr := suite.cache.Save(ID, helper.NewPdv())
+		actualErr := suite.cache.Save(ID, *helper.NewPdv())
 
 		actual := suite.miniredis.Exists(ID)
 
@@ -180,7 +180,7 @@ func TestSavePdv(t *testing.T) {
 		suite.setupTest(WithJsonMarshal(json.Marshal))
 		suite.miniredis.Close()
 
-		actualErr := suite.cache.Save("2345", helper.NewPdv())
+		actualErr := suite.cache.Save("2345", *helper.NewPdv())
 
 		assert.Error(t, actualErr)
 	})
@@ -192,7 +192,7 @@ func TestSavePdv(t *testing.T) {
 		expected := helper.NewPdv()
 
 		ID := "34434343"
-		actualErr := suite.cache.Save(ID, expected)
+		actualErr := suite.cache.Save(ID, *expected)
 
 		actual, _ := json.Marshal(expected)
 
