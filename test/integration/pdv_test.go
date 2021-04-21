@@ -1,4 +1,4 @@
-package e2e
+package integration
 
 import (
 	mongoSettings "beverage_delivery_manager/config/mongo"
@@ -15,17 +15,17 @@ import (
 	"testing"
 )
 
-type pdvE2ETestSuite struct {
+type pdvIntegrationTestSuite struct {
 	resolver *resolver.Resolver
 }
 
-func (p *pdvE2ETestSuite) setupTest() {
+func (p *pdvIntegrationTestSuite) setupTest() {
 	cmd := exec.Command("docker-compose", "up", "-d")
 	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
 
-	err := godotenv.Load("../../.env.test.e2e")
+	err := godotenv.Load("../../.env.test.integration")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -44,7 +44,7 @@ func (p *pdvE2ETestSuite) setupTest() {
 	p.resolver = resolver.NewResolver(sts, mongoCli, redisCli)
 }
 
-func (p *pdvE2ETestSuite) tearDownTest() {
+func (p *pdvIntegrationTestSuite) tearDownTest() {
 	cmd := exec.Command("docker-compose", "down")
 	if err := cmd.Run(); err != nil {
 		fmt.Println(err)
@@ -52,7 +52,7 @@ func (p *pdvE2ETestSuite) tearDownTest() {
 }
 
 func TestBusinessRules(t *testing.T) {
-	suite := pdvE2ETestSuite{}
+	suite := pdvIntegrationTestSuite{}
 
 	suite.setupTest()
 	defer suite.tearDownTest()
