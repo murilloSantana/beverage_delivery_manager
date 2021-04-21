@@ -15,7 +15,7 @@ import (
 type pdvResolverTestSuite struct {
 	resolver        *Resolver
 	pdvUseCase      *mocks.PdvUseCase
-	pdv             domain.Pdv
+	pdv             *domain.Pdv
 	pdvInput        model.PdvInput
 	pdvIDInput      model.PdvIDInput
 	pdvAddressInput model.PdvAddressInput
@@ -30,7 +30,7 @@ func (suite *pdvResolverTestSuite) setupTest() {
 	}
 
 	suite.pdv = helper.NewPdv()
-	suite.pdvInput = pdvToPdvInput(suite.pdv)
+	suite.pdvInput = pdvToPdvInput(*suite.pdv)
 	suite.pdvIDInput = newPdvIDInput("234343435454")
 	suite.pdvAddressInput = newPdvAddressInput(-46.57421, -21.785742)
 }
@@ -73,12 +73,12 @@ func TestSavePdv(t *testing.T) {
 
 		expectedErr := errors.New("save error")
 
-		suite.pdvUseCase.On("Save", mock.Anything, suite.pdv).Return(domain.Pdv{}, expectedErr)
+		suite.pdvUseCase.On("Save", mock.Anything, *suite.pdv).Return(nil, expectedErr)
 
 		actual, actualErr := suite.resolver.Mutation().SavePdv(suite.ctx, suite.pdvInput)
 
 		assert.EqualError(t, actualErr, "save error")
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should return new pdv created", func(t *testing.T) {
@@ -86,12 +86,12 @@ func TestSavePdv(t *testing.T) {
 
 		expected := helper.NewPdv(helper.WithID("234343435454"))
 
-		suite.pdvUseCase.On("Save", mock.Anything, suite.pdv).Return(expected, nil)
+		suite.pdvUseCase.On("Save", mock.Anything, *suite.pdv).Return(expected, nil)
 
 		actual, actualErr := suite.resolver.Mutation().SavePdv(suite.ctx, suite.pdvInput)
 
 		assert.NoError(t, actualErr)
-		assert.Equal(t, &expected, actual)
+		assert.Equal(t, expected, actual)
 	})
 }
 
@@ -103,23 +103,23 @@ func TestFindByID(t *testing.T) {
 
 		expectedErr := errors.New("find by id error")
 
-		suite.pdvUseCase.On("FindByID", suite.pdvIDInput.ID).Return(domain.Pdv{}, expectedErr)
+		suite.pdvUseCase.On("FindByID", suite.pdvIDInput.ID).Return(nil, expectedErr)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByID(context.Background(), suite.pdvIDInput)
 
 		assert.EqualError(t, actualErr, "find by id error")
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should return empty pdv when id not found", func(t *testing.T) {
 		suite.setupTest()
 
-		suite.pdvUseCase.On("FindByID", suite.pdvIDInput.ID).Return(domain.Pdv{}, nil)
+		suite.pdvUseCase.On("FindByID", suite.pdvIDInput.ID).Return(nil, nil)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByID(context.Background(), suite.pdvIDInput)
 
 		assert.NoError(t, actualErr)
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should return a valid pdv", func(t *testing.T) {
@@ -132,7 +132,7 @@ func TestFindByID(t *testing.T) {
 		actual, actualErr := suite.resolver.Query().FindPdvByID(context.Background(), suite.pdvIDInput)
 
 		assert.NoError(t, actualErr)
-		assert.Equal(t, &expected, actual)
+		assert.Equal(t, expected, actual)
 	})
 }
 
@@ -145,24 +145,24 @@ func TestFindByAddress(t *testing.T) {
 		expectedErr := errors.New("find by address error")
 
 		point := newPoint(suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude)
-		suite.pdvUseCase.On("FindByAddress", point).Return(domain.Pdv{}, expectedErr)
+		suite.pdvUseCase.On("FindByAddress", point).Return(nil, expectedErr)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(), suite.pdvAddressInput)
 
 		assert.EqualError(t, actualErr, "find by address error")
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should return empty PDV when the entered address is not in a coverage area", func(t *testing.T) {
 		suite.setupTest()
 
 		point := newPoint(suite.pdvAddressInput.Longitude, suite.pdvAddressInput.Latitude)
-		suite.pdvUseCase.On("FindByAddress", point).Return(domain.Pdv{}, nil)
+		suite.pdvUseCase.On("FindByAddress", point).Return(nil, nil)
 
 		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(), suite.pdvAddressInput)
 
 		assert.NoError(t, actualErr)
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 	})
 
 	t.Run("Should return a valid pdv", func(t *testing.T) {
@@ -176,6 +176,6 @@ func TestFindByAddress(t *testing.T) {
 		actual, actualErr := suite.resolver.Query().FindPdvByAddress(context.Background(), suite.pdvAddressInput)
 
 		assert.NoError(t, actualErr)
-		assert.Equal(t, &expected, actual)
+		assert.Equal(t, expected, actual)
 	})
 }

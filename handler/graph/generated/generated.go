@@ -10,7 +10,6 @@ import (
 	"errors"
 	"strconv"
 	"sync"
-	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -258,12 +257,12 @@ input PdvAddressInput {
 }
 
 extend type Query {
-    findPdvById(input: PdvIdInput!): Pdv!
-    findPdvByAddress(input: PdvAddressInput!): Pdv!
+    findPdvById(input: PdvIdInput!): Pdv
+    findPdvByAddress(input: PdvAddressInput!): Pdv
 }
 
 extend type Mutation {
-    savePdv(input: PdvInput!): Pdv
+    savePdv(input: PdvInput!): Pdv!
 }`, BuiltIn: false},
 	{Name: "handler/graph/schema/schema.graphql", Input: `schema {
     query: Query
@@ -419,11 +418,14 @@ func (ec *executionContext) _Mutation_savePdv(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*domain.Pdv)
 	fc.Result = res
-	return ec.marshalOPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
+	return ec.marshalNPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Pdv_id(ctx context.Context, field graphql.CollectedField, obj *domain.Pdv) (ret graphql.Marshaler) {
@@ -665,14 +667,11 @@ func (ec *executionContext) _Query_findPdvById(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*domain.Pdv)
 	fc.Result = res
-	return ec.marshalNPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
+	return ec.marshalOPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_findPdvByAddress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -707,14 +706,11 @@ func (ec *executionContext) _Query_findPdvByAddress(ctx context.Context, field g
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*domain.Pdv)
 	fc.Result = res
-	return ec.marshalNPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
+	return ec.marshalOPdv2ᚖbeverage_delivery_managerᚋpdvᚋdomainᚐPdv(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2000,6 +1996,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "savePdv":
 			out.Values[i] = ec._Mutation_savePdv(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2084,9 +2083,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_findPdvById(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "findPdvByAddress":
@@ -2098,9 +2094,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_findPdvByAddress(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "__type":

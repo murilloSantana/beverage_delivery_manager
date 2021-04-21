@@ -60,7 +60,7 @@ func TestBusinessRules(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Should return new pdv created", func(t *testing.T) {
-		pdvInput := helper.PdvToPdvInput(helper.NewPdv())
+		pdvInput := helper.PdvToPdvInput(*helper.NewPdv())
 
 		expected, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
@@ -73,7 +73,7 @@ func TestBusinessRules(t *testing.T) {
 	})
 
 	t.Run("Should return error when document already exists", func(t *testing.T) {
-		pdvInput := helper.PdvToPdvInput(helper.NewPdv())
+		pdvInput := helper.PdvToPdvInput(*helper.NewPdv())
 
 		_, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
@@ -86,7 +86,7 @@ func TestBusinessRules(t *testing.T) {
 	})
 
 	t.Run("Should return pdv found by address", func(t *testing.T) {
-		pdvInput := helper.PdvToPdvInput(helper.NewPdv(helper.WithAddress(-46.623238, -21.785538)))
+		pdvInput := helper.PdvToPdvInput(*helper.NewPdv(helper.WithAddress(-46.623238, -21.785538)))
 
 		expected, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
@@ -106,7 +106,7 @@ func TestBusinessRules(t *testing.T) {
 	})
 
 	t.Run("Should return the correct pdv by id", func(t *testing.T) {
-		pdvInput := helper.PdvToPdvInput(helper.NewPdv())
+		pdvInput := helper.PdvToPdvInput(*helper.NewPdv())
 
 		expected, expectedErr := suite.resolver.Mutation().SavePdv(context.Background(), pdvInput)
 
@@ -116,7 +116,7 @@ func TestBusinessRules(t *testing.T) {
 		actual, actualErr := suite.resolver.Query().FindPdvByID(context.Background(), helper.NewPdvIDInput(nonExistentID))
 
 		assert.NoError(t, actualErr)
-		assert.Empty(t, actual)
+		assert.Nil(t, actual)
 
 		actual, actualErr = suite.resolver.Query().FindPdvByID(context.Background(), helper.NewPdvIDInput(expected.ID))
 

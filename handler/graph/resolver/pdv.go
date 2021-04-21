@@ -24,7 +24,7 @@ func (r *mutationResolver) SavePdv(ctx context.Context, input model.PdvInput) (*
 		return nil, err
 	}
 
-	return &newPdv, nil
+	return newPdv, nil
 }
 
 func (r *queryResolver) FindPdvByID(_ context.Context, input model.PdvIDInput) (*domain.Pdv, error) {
@@ -33,7 +33,7 @@ func (r *queryResolver) FindPdvByID(_ context.Context, input model.PdvIDInput) (
 		return nil, err
 	}
 
-	return &pdv, nil
+	return pdv, nil
 }
 
 func (r *queryResolver) FindPdvByAddress(_ context.Context, input model.PdvAddressInput) (*domain.Pdv, error) {
@@ -44,5 +44,5 @@ func (r *queryResolver) FindPdvByAddress(_ context.Context, input model.PdvAddre
 		return nil, err
 	}
 
-	return &pdv, nil
+	return pdv, nil
 }
