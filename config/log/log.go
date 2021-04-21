@@ -12,16 +12,23 @@ type Logger interface {
 	Error(values map[string]interface{}, msg interface{})
 }
 
-type loggerWrap struct{}
+type loggerWrap struct {
+	log *logrus.Logger
+}
 
 func NewLogger() Logger {
-	return loggerWrap{}
+	l := logrus.New()
+	l.SetFormatter(&logrus.JSONFormatter{})
+
+	return loggerWrap{
+		log: l,
+	}
 }
 
 func (l loggerWrap) Info(values map[string]interface{}, msg interface{}) {
-	logrus.WithFields(values).Info(msg)
+	l.log.WithFields(values).Info(msg)
 }
 
 func (l loggerWrap) Error(values map[string]interface{}, msg interface{}) {
-	logrus.WithFields(values).Error(msg)
+	l.log.WithFields(values).Error(msg)
 }

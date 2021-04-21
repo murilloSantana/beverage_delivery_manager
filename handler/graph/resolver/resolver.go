@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"beverage_delivery_manager/config/log"
 	"beverage_delivery_manager/config/settings"
 	"beverage_delivery_manager/handler/graph/generated"
 	mongoRepo "beverage_delivery_manager/pdv/repository/mongo"
@@ -12,6 +13,7 @@ import (
 
 type Resolver struct {
 	PdvUseCase usecase.PdvUseCase
+	Log        log.Logger
 }
 
 func NewResolver(sts settings.Settings, mongoCli *mongo.Client, redisCli *redis.Client) *Resolver {
@@ -22,6 +24,7 @@ func NewResolver(sts settings.Settings, mongoCli *mongo.Client, redisCli *redis.
 
 	return &Resolver{
 		PdvUseCase: usecase.NewPdvUseCase(pdvRepository),
+		Log:        log.NewLogger(),
 	}
 }
 

@@ -24,11 +24,17 @@ type pdvResolverTestSuite struct {
 
 func (suite *pdvResolverTestSuite) setupTest() {
 	suite.pdvUseCase = new(mocks.PdvUseCase)
-	suite.ctx = context.Background()
+
+	l := new(mocks.Logger)
+	l.On("Info", mock.Anything, mock.Anything).Return()
+	l.On("Error", mock.Anything, mock.Anything).Return()
+
 	suite.resolver = &Resolver{
 		PdvUseCase: suite.pdvUseCase,
+		Log: l,
 	}
 
+	suite.ctx = context.Background()
 	suite.pdv = helper.NewPdv()
 	suite.pdvInput = pdvToPdvInput(*suite.pdv)
 	suite.pdvIDInput = newPdvIDInput("234343435454")
