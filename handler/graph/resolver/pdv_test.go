@@ -31,7 +31,7 @@ func (suite *pdvResolverTestSuite) setupTest() {
 
 	suite.resolver = &Resolver{
 		PdvUseCase: suite.pdvUseCase,
-		Log: l,
+		Log:        l,
 	}
 
 	suite.ctx = context.Background()
