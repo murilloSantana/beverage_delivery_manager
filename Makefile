@@ -13,10 +13,7 @@ test-coverage:
 format-files:
 	go fmt ./...
 
-lint:
-	golangci-lint run
-
-run: format-files lint
+run: format-files
 	go run -race ./cmd/main.go
 
 generate:

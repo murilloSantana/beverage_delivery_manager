@@ -5,7 +5,6 @@ import (
 	"beverage_delivery_manager/handler/graph/config"
 	"beverage_delivery_manager/handler/graph/generated"
 	"beverage_delivery_manager/handler/graph/resolver"
-	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -32,7 +31,10 @@ func New(sts settings.Settings, mongoCli *mongo.Client, redisCli *redis.Client) 
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	if !sts.ApplicationSettings.IsProduction() {
+		http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	}
+
 	http.Handle("/query", srv)
 
 	return graphServer{
@@ -42,5 +44,5 @@ func New(sts settings.Settings, mongoCli *mongo.Client, redisCli *redis.Client) 
 }
 
 func (g graphServer) Run() error {
-	return http.ListenAndServe(fmt.Sprintf(":%s", g.sts.Port), nil)
+	return http.ListenAndServe(g.sts.ApplicationSettings.Port, nil)
 }

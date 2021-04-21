@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"fmt"
 	_ "github.com/joho/godotenv/autoload"
 	"os"
 	"strconv"
@@ -10,9 +11,18 @@ import (
 type OptSettings func(*Settings)
 
 type Settings struct {
-	Port          string
-	MongoSettings MongoSettings
-	RedisSettings RedisSettings
+	ApplicationSettings ApplicationSettings
+	MongoSettings       MongoSettings
+	RedisSettings       RedisSettings
+}
+
+type ApplicationSettings struct {
+	Port string
+	ENV  string
+}
+
+func (a ApplicationSettings) IsProduction() bool {
+	return a.ENV == "production"
 }
 
 type MongoSettings struct {
@@ -35,9 +45,9 @@ type RedisSettings struct {
 
 func New(opts ...OptSettings) Settings {
 	s := &Settings{
-		Port:          os.Getenv("PORT"),
-		MongoSettings: newMongoSettings(),
-		RedisSettings: newRedisSettings(),
+		ApplicationSettings: newApplicationSettings(),
+		MongoSettings:       newMongoSettings(),
+		RedisSettings:       newRedisSettings(),
 	}
 
 	for _, opt := range opts {
@@ -45,6 +55,13 @@ func New(opts ...OptSettings) Settings {
 	}
 
 	return *s
+}
+
+func newApplicationSettings() ApplicationSettings {
+	return ApplicationSettings{
+		Port: fmt.Sprintf(":%s", os.Getenv("PORT")),
+		ENV:  os.Getenv("ENV"),
+	}
 }
 
 func newMongoSettings() MongoSettings {
