@@ -35,21 +35,6 @@ jobs:
       - name: Test
         run: make run-test
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./
-          file: ./docker/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/beverage_delivery_manager:${{ steps.tag_version.outputs.new_tag }}
-
       - uses: actions/checkout@v2
       - name: Bump version and push tag
         id: tag_version
