@@ -10,6 +10,7 @@ import (
 
 func main() {
 	sts := settings.New()
+
 	mongoCli, err := mongo.NewClient(sts.MongoSettings)
 	if err != nil {
 		log.Fatal(err)

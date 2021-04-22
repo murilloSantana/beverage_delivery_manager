@@ -4,6 +4,7 @@ import (
 	redisCli "beverage_delivery_manager/config/redis"
 	"beverage_delivery_manager/config/settings"
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"time"
 )
@@ -26,11 +27,11 @@ func NewAPQ(sts settings.RedisSettings) (*cacheAPQ, error) {
 }
 
 func (c *cacheAPQ) Add(ctx context.Context, key string, value interface{}) {
-	c.client.Set(ctx, apqPrefix+key, value, c.ttl)
+	c.client.Set(ctx, fmt.Sprintf("%v%v", apqPrefix, key), value, c.ttl)
 }
 
 func (c *cacheAPQ) Get(ctx context.Context, key string) (interface{}, bool) {
-	s, err := c.client.Get(ctx, apqPrefix+key).Result()
+	s, err := c.client.Get(ctx, fmt.Sprintf("%v%v", apqPrefix, key)).Result()
 	if err != nil {
 		return struct{}{}, false
 	}

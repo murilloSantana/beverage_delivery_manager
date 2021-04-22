@@ -32,6 +32,7 @@ func New(sts settings.Settings, mongoCli *mongo.Client, redisCli *redis.Client) 
 	srv.AddTransport(transport.POST{})
 
 	if !sts.ApplicationSettings.IsProduction() {
+		srv.Use(extension.Introspection{})
 		http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	}
 
